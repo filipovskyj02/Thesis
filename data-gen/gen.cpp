@@ -6,14 +6,14 @@
 #include <string>
 #include <format>
 
-#define MAX_PRICE 105.0
+#define MAX_PRICE 3090.0
 #define MIN_PRICE 95.0
 #define MAX_VOLUME 1000
 #define MIN_VOLUME 1
 #define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
-#define CANCELATION_RATE 0.9 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
+#define CANCELATION_RATE 0.95 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 30000
-#define GENERATED_ORDERS 50000
+#define GENERATED_ORDERS 1000000
 
 enum class OrderType { MARKET, LIMIT };
 
@@ -23,7 +23,7 @@ using Price = double;
 using Volume = uint64_t;
 
 
-int orderId = 1;
+int orderId = 0;
 std::uniform_real_distribution<> zeroToOneDist(0.0, 1.0);
 std::set<int> activeOrders;
 
@@ -86,12 +86,14 @@ void generateOrders(std::ofstream &outFile, int numOrders, std::mt19937 &gen,
             else {
                 outFile << orderId << " " << sideToString(side) << " LIMIT " << price << " " << volume << "\n";
                 activeOrders.insert(orderId);
+                orderId++;
             }
         }
         else {
             outFile << orderId << " " << sideToString(side) << " MARKET " << volume << "\n";
+            orderId++;
         }
-        orderId++;
+
     }
 }
 

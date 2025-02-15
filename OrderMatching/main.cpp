@@ -1,51 +1,61 @@
+#include <fstream>
 #include <iostream>
-#include <thread>
 
 #include "Order.h"
 #include "OrderBook.h"
 
-// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
+
 int main() {
     auto orderBook = std::make_unique<OrderBook>();
-
-    long long total = 0;
-    OrderId orderId = 0;
-    const int POPULATED_SIZE = 30000;
-    for (int i = 0; i < POPULATED_SIZE; i++) {
-        auto order = std::make_shared<Order>(MARKET, BUY, 94 - rand() % 90, rand() % 100);
-        auto order2 = std::make_shared<Order>(MARKET, SELL, 220 + rand() % 90, rand() % 100);
+    std::ifstream inputFile("30000-1000000-23-24-15-02-2025.txt");
+    if (!inputFile.is_open()) {
+        throw std::runtime_error("Error opening file" );
+    }
+    int initialOrdersCount;
+    int ordersCount;
+    inputFile >> initialOrdersCount >> ordersCount;
+    for (int i = 0; i < initialOrdersCount; i++) {
+        int orderId;
+        std::string side;
+        std::string type;
+        Price price;
+        Volume volume;
+        inputFile >> orderId >> side >> type >> price >> volume;
+        auto order = std::make_shared<Order>(convertType(type), convertSide(side), price, volume);
         orderBook->placeOrder(order);
-        orderBook->placeOrder(order2);
-        orderId+= 2;
     }
 
     auto start = std::chrono::steady_clock::now();
-
-    while (true) {
-        total++;
-        if (rand() % 10 == 0) {
-            orderBook->cancelOrder(orderBook->getOrder(rand() % orderId));
+    for (int i = 0; i < ordersCount; i++) {
+        OrderId orderId;
+        std::string side = "";
+        std::string type = "";
+        Price price = 0;
+        Volume volume = 0;
+        inputFile >> orderId >> side;
+        if (side == "CANCEL") {
+            orderBook->cancelOrderLazy(orderBook->getOrder(orderId));
         }
         else {
-            auto order = std::make_shared<Order>(MARKET, Side(rand() % 2), 95 + rand() % 110, rand() % 100);
-            orderBook->placeOrder(order);
-            orderId++;
-        }
-
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
-        if (elapsed.count() >= 1) {
-            break;
-
+            inputFile >> type;
+            if (type == "MARKET") {
+                inputFile >> volume;
+                auto order = std::make_shared<Order>(convertType(type),convertSide(side), 100000.0, volume);
+                orderBook->placeOrder(order);
+            }
+            else {
+                inputFile >> price >> volume;
+                auto order = std::make_shared<Order>(convertType(type),convertSide(side), price, volume);
+                orderBook->placeOrder(order);
+            }
         }
     }
+    auto now = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+    std::cout << duration.count() << "ms" << std::endl;
 
-    std::cout << "Loop exited after 1 second.\n " << (orderBook->orderCount - (POPULATED_SIZE * 2))<< " canceled: " << orderBook->canceledOrderCount  << " canceledFull " << orderBook->canceledFullfiledOrderCount<< std::endl;
+    inputFile.close();
+
     return 0;
 }
-
-// TIP See CLion help at <a
-// href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>.
-//  Also, you can try interactive lessons for CLion by selecting
-//  'Help | Learn IDE Features' from the main menu.

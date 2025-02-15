@@ -28,11 +28,11 @@ void OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
 
 void OrderBook::executeSell(const std::shared_ptr<Order>& order) {
     while (!bids.empty() && order->getRemainingVolume() > 0) {
-        while (bids.top()->isCanceled()) {
+        while (!bids.empty() && bids.top()->isCanceled()) {
             bids.pop();
         }
 
-
+        if (!bids.empty()) break;;
         std::shared_ptr<Order> topBid = bids.top();
 
         if (topBid->getPrice() < order->getPrice()) {
@@ -56,9 +56,10 @@ void OrderBook::executeSell(const std::shared_ptr<Order>& order) {
 
 void OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
     while (!asks.empty() && order->getRemainingVolume() > 0) {
-        while (asks.top()->isCanceled()) {
+        while (!asks.empty() && asks.top()->isCanceled()) {
             asks.pop();
         }
+        if (!asks.empty()) break;
         std::shared_ptr<Order> topAsk = asks.top();
 
 
@@ -86,7 +87,7 @@ void OrderBook::storeOrder(std::shared_ptr<Order> order) {
     if (orderId >= orders.size()) {
         orders.resize(orders.size() * 2 + 1);
     }
-    orders[orderId] = order;
+    orders[orderId] = std::move(order);
     orderCount++;
 }
 
@@ -125,6 +126,7 @@ void OrderBook::cancelOrderLazy(const std::shared_ptr<Order>& order) {
     order->setCanceled(true);
 }
 std::shared_ptr<Order>& OrderBook::getOrder(OrderId id) {
+    if (id >= orders.size()) {throw std::out_of_range("Invalid order id");}
     return orders[id];
 }
 
