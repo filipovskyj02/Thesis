@@ -19,7 +19,12 @@ public:
 
     }
 
-
+    Order(OrderType orderType, Side side, Volume volume) : id(generateId()), orderType(orderType), side(side), volume(volume) {
+        timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
+                       std::chrono::system_clock::now().time_since_epoch()).count();
+        filledVolume = 0;
+        canceled = false;
+    }
     int getId() const { return id; }
     OrderType getOrderType() const { return orderType; }
     Side getSide() const { return side; }

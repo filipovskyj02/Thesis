@@ -6,12 +6,12 @@
 #include <string>
 #include <format>
 
-#define MAX_PRICE 3090.0
+#define MAX_PRICE 105
 #define MIN_PRICE 95.0
-#define MAX_VOLUME 1000
+#define MAX_VOLUME 10000
 #define MIN_VOLUME 1
 #define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
-#define CANCELATION_RATE 0.95 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
+#define CANCELATION_RATE 0 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 30000
 #define GENERATED_ORDERS 1000000
 

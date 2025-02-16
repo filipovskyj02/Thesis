@@ -8,18 +8,10 @@
 void OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
     storeOrder(order);
     if (order->getSide() == SELL) {
-        if (!bids.empty() && order->getPrice() <= bids.top()->getPrice()) {
-            executeSell(order);
-            return;
-        }
-        asks.push(order);
+        executeSell(order);
     }
     else if (order->getSide() == BUY) {
-        if (!asks.empty() && order->getPrice() >= asks.top()->getPrice()) {
-            executeBuy(order);
-            return;
-        }
-        bids.push(order);
+        executeBuy(order);
     }
     else {
         throw std::logic_error("Invalid order type");
@@ -31,25 +23,23 @@ void OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         while (!bids.empty() && bids.top()->isCanceled()) {
             bids.pop();
         }
-
-        if (!bids.empty()) break;;
+        if (bids.empty()) break;;
         std::shared_ptr<Order> topBid = bids.top();
 
-        if (topBid->getPrice() < order->getPrice()) {
+        if (order->getOrderType() == LIMIT && topBid->getPrice() < order->getPrice()) {
             break;
         }
-
         Volume matchedVolume = std::min(order->getRemainingVolume(), topBid->getRemainingVolume());
-
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topBid->setFilledVolume(topBid->getFilledVolume() + matchedVolume);
-
+        lastPrice = topBid->getPrice();
+        std::cout << lastPrice << '\n';
         if (topBid->getRemainingVolume() == 0) {
             bids.pop();
         }
     }
 
-    if (order->getRemainingVolume() > 0) {
+    if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         asks.push(order);
     }
 }
@@ -59,25 +49,22 @@ void OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
         while (!asks.empty() && asks.top()->isCanceled()) {
             asks.pop();
         }
-        if (!asks.empty()) break;
+        if (asks.empty()) break;
         std::shared_ptr<Order> topAsk = asks.top();
 
-
-        if (topAsk->getPrice() > order->getPrice()) {
+        if (order->getOrderType() == LIMIT && topAsk->getPrice() > order->getPrice()) {
             break;
         }
-
         Volume matchedVolume = std::min(order->getRemainingVolume(), topAsk->getRemainingVolume());
-
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topAsk->setFilledVolume(topAsk->getFilledVolume() + matchedVolume);
-
+        lastPrice = topAsk->getPrice();
+        std::cout << lastPrice << '\n';
         if (topAsk->getRemainingVolume() == 0) {
             asks.pop();
         }
     }
-
-    if (order->getRemainingVolume() > 0) {
+    if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         bids.push(order);
     }
 }
@@ -110,7 +97,7 @@ void OrderBook::cancelOrder(const std::shared_ptr<Order>& order) {
         bids = std::move(newBids);
     }
     else if (order->getSide() == SELL) {
-        std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, std::greater<>> newAsks;
+        std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, OrderCompareReverse> newAsks;
         while (!asks.empty()) {
             auto topOrder = asks.top();
             asks.pop();
