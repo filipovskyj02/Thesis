@@ -42,8 +42,6 @@ private:
     void storeOrder(std::shared_ptr<Order> order);
     void executeSell(const std::shared_ptr<Order>& order);
     void executeBuy(const std::shared_ptr<Order>& order);
-    void executeBuyMarket(const std::shared_ptr<Order>& order);
-    void executeSellMarket(const std::shared_ptr<Order>& order);
 
 
 };

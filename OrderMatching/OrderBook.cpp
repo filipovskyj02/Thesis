@@ -33,7 +33,7 @@ void OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topBid->setFilledVolume(topBid->getFilledVolume() + matchedVolume);
         lastPrice = topBid->getPrice();
-        std::cout << lastPrice << '\n';
+        //std::cout << lastPrice << '\n';
         if (topBid->getRemainingVolume() == 0) {
             bids.pop();
         }
@@ -59,7 +59,7 @@ void OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topAsk->setFilledVolume(topAsk->getFilledVolume() + matchedVolume);
         lastPrice = topAsk->getPrice();
-        std::cout << lastPrice << '\n';
+       // std::cout << lastPrice << '\n';
         if (topAsk->getRemainingVolume() == 0) {
             asks.pop();
         }

@@ -8,6 +8,8 @@
 
 
 int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
     std::ifstream inputFile("30000-1000000-21-47-16-02-2025.txt");
     if (!inputFile.is_open()) {
@@ -16,12 +18,12 @@ int main() {
     int initialOrdersCount;
     int ordersCount;
     inputFile >> initialOrdersCount >> ordersCount;
+    OrderId orderId;
+    std::string side;
+    std::string type;
+    Price price = 0;
+    Volume volume = 0;
     for (int i = 0; i < initialOrdersCount; i++) {
-        int orderId;
-        std::string side;
-        std::string type;
-        Price price;
-        Volume volume;
         inputFile >> orderId >> side >> type >> price >> volume;
         auto order = std::make_shared<Order>(convertType(type), convertSide(side), price, volume);
         orderBook->placeOrder(order);
@@ -29,11 +31,7 @@ int main() {
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
-        OrderId orderId;
-        std::string side = "";
-        std::string type = "";
-        Price price = 0;
-        Volume volume = 0;
+
         inputFile >> orderId >> side;
         if (side == "CANCEL") {
             orderBook->cancelOrderLazy(orderBook->getOrder(orderId));
@@ -52,7 +50,7 @@ int main() {
             }
 
         }
-        std::this_thread::sleep_for(std::chrono::microseconds(100));
+       // std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
     auto now = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
