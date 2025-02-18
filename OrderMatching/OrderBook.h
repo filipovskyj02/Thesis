@@ -50,7 +50,7 @@ inline void OrderBook::countFilledCount() {
     uint64_t count = 0;
     uint64_t totalVolume = 0;
     for (int i = 0; i < orderCount; i++) {
-        if (orders[i] != nullptr && orders[i]->getFilledVolume()) {
+        if (orders[i] != nullptr && orders[i]->getFilledVolume() == orders[i]->getOriginalVolume()) {
             totalVolume+= orders[i]->getFilledVolume();
             count++;
         }

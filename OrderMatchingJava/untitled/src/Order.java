@@ -45,7 +45,7 @@ public class Order implements Comparable<Order> {
     }
 
 
-    Order(OrderType orderType, Side side, double price, long volume) {
+    Order(Side side, OrderType orderType, double price, long volume) {
         this.orderId = getCurrentIdSequence();
         this.orderType = orderType;
         this.side = side;
@@ -56,7 +56,7 @@ public class Order implements Comparable<Order> {
         this.isCancelled = false;
     }
 
-    Order(OrderType orderType, Side side, long volume) {
+    Order( Side side, OrderType orderType, long volume) {
         this.orderId = getCurrentIdSequence();
         this.orderType = orderType;
         this.side = side;
@@ -69,7 +69,7 @@ public class Order implements Comparable<Order> {
     long getCurrentIdSequence() {
         return currentIdSequence++;
     }
-    static long currentIdSequence = 1;
+    static long currentIdSequence = 0;
 
     @Override
     public int compareTo(Order o) {

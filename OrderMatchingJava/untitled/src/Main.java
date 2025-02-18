@@ -1,11 +1,10 @@
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+
 
 public class Main {
     public static void main(String[] args) {
         OrderBook orderBook = new OrderBook();
-        String filename = "30000-1000000-21-47-16-02-2025.txt";
+        String filename = "../../data-gen/outputs/30000-1000000-23-03-18-02-2025.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String[] firstLine = reader.readLine().split(" ");
@@ -21,7 +20,7 @@ public class Main {
                 double price = Double.parseDouble(parts[3]);
                 long volume = Long.parseLong(parts[4]);
 
-                Order order = new Order(type, side, price, volume);
+                Order order = new Order(side, type, price, volume);
                 orderBook.placeOrder(order);
             }
 
@@ -31,22 +30,20 @@ public class Main {
             for (int i = 0; i < ordersCount; i++) {
                 String[] parts = reader.readLine().split(" ");
                 long orderId = Long.parseLong(parts[0]);
-                String sideString = parts[1];
+                Side side = Side.valueOf(parts[1]);
+                OrderType type = OrderType.valueOf(parts[2]);
+                double price = Double.parseDouble(parts[3]);
+                long volume = Long.parseLong(parts[4]);
 
-                if (sideString.equals("CANCEL")) {
+
+                if (type.equals(OrderType.CANCEL)) {
                     orderBook.cancelOrderLazy(orderId);
                 } else {
-                    Side side = Side.valueOf(sideString);
-                    OrderType type = OrderType.valueOf(parts[2]);
-
                     if (type == OrderType.MARKET) {
-                        long volume = Long.parseLong(parts[3]);
-                        Order order = new Order(type, side, volume);
+                        Order order = new Order(side, type, volume);
                         orderBook.placeOrder(order);
                     } else {
-                        double price = Double.parseDouble(parts[3]);
-                        long volume = Long.parseLong(parts[4]);
-                        Order order = new Order(type, side, price, volume);
+                        Order order = new Order(side, type, price, volume);
                         orderBook.placeOrder(order);
                     }
                 }

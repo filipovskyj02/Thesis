@@ -70,11 +70,7 @@ void OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
 }
 
 void OrderBook::storeOrder(std::shared_ptr<Order> order) {
-    OrderId orderId = order->getId();
-    if (orderId >= orders.size()) {
-        orders.resize(orders.size() * 2 + 1);
-    }
-    orders[orderId] = std::move(order);
+    orders.push_back(order);
     orderCount++;
 }
 

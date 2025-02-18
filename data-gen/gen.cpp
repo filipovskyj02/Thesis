@@ -8,14 +8,14 @@
 
 #define MAX_PRICE 105
 #define MIN_PRICE 95.0
-#define MAX_VOLUME 10000
+#define MAX_VOLUME 100
 #define MIN_VOLUME 1
 #define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
-#define CANCELATION_RATE 0 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
+#define CANCELATION_RATE 0.5 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 30000
-#define GENERATED_ORDERS 1000000
+#define GENERATED_ORDERS 500000
 
-enum class OrderType { MARKET, LIMIT };
+enum class OrderType { MARKET, LIMIT, CANCEL };
 
 enum class Side { BUY, SELL };
 
@@ -38,11 +38,20 @@ int getRandomIntFromSet(const std::set<int>& set) {
 }
 
 std::string orderTypeToString(OrderType type) {
-    return (type == OrderType::MARKET) ? "MARKET" : "LIMIT";
+    switch (type) {
+        case OrderType::MARKET: return "MARKET";
+        case OrderType::LIMIT: return "LIMIT";
+        case OrderType::CANCEL: return "CANCEL";
+        default: return "UNKNOWN";
+    }
 }
 
 std::string sideToString(Side side) {
     return (side == Side::BUY) ? "BUY" : "SELL";
+}
+
+void printToStream(std::ofstream &out, int id, Side side, OrderType type, Price price, Volume volume) {
+    out << id << " " << sideToString(side) << " " << orderTypeToString(type) << " " << price << " " << volume << "\n";
 }
 
 std::ofstream openFile(const std::string &filename) {
@@ -64,7 +73,7 @@ void fillOrderBook(std::ofstream &outFile, int numOrders, std::mt19937 &gen,
         Side side = (zeroToOneDist(gen) >= 0.5) ? Side::BUY : Side::SELL;
         Price price = side == Side::BUY ? priceDistBuy(gen) : priceDistSell(gen);
         Volume volume = volumeDist(gen);
-        outFile << orderId << " " << sideToString(side) << " LIMIT " << price << " " << volume << "\n";
+        printToStream(outFile, orderId, side, OrderType::LIMIT, price, volume);
         activeOrders.insert(orderId);
         orderId++;
     }
@@ -80,22 +89,23 @@ void generateOrders(std::ofstream &outFile, int numOrders, std::mt19937 &gen,
         if (zeroToOneDist(gen) <= LIMIT_TO_MARKET_RATIO) {
             if (zeroToOneDist(gen) <= CANCELATION_RATE && !activeOrders.empty()) {
                 int canceledId = getRandomIntFromSet(activeOrders);
-                outFile << canceledId << " CANCEL" << "\n";
+                printToStream(outFile, canceledId, Side::BUY, OrderType::CANCEL, 0, 0);
                 activeOrders.erase(canceledId);
             }
             else {
-                outFile << orderId << " " << sideToString(side) << " LIMIT " << price << " " << volume << "\n";
+                printToStream(outFile, orderId, side, OrderType::LIMIT, price, volume);
                 activeOrders.insert(orderId);
                 orderId++;
             }
         }
         else {
-            outFile << orderId << " " << sideToString(side) << " MARKET " << volume << "\n";
+            printToStream(outFile, orderId, side, OrderType::MARKET, 0, volume);
             orderId++;
         }
 
     }
 }
+
 
 int main() {
     const std::string filename = std::format("outputs/{}-{}-{}.txt", INITIAL_ORDERS, GENERATED_ORDERS, getTimeStamp());

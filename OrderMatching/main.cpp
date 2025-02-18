@@ -11,7 +11,7 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
-    std::ifstream inputFile("30000-1000000-21-47-16-02-2025.txt");
+    std::ifstream inputFile("../../data-gen/outputs/30000-1000000-23-03-18-02-2025.txt");
     if (!inputFile.is_open()) {
         throw std::runtime_error("Error opening file" );
     }
@@ -21,31 +21,27 @@ int main() {
     OrderId orderId;
     std::string side;
     std::string type;
-    Price price = 0;
+    Price price;
     Volume volume = 0;
     for (int i = 0; i < initialOrdersCount; i++) {
         inputFile >> orderId >> side >> type >> price >> volume;
-        auto order = std::make_shared<Order>(convertType(type), convertSide(side), price, volume);
+        auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
         orderBook->placeOrder(order);
     }
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
-
-        inputFile >> orderId >> side;
-        if (side == "CANCEL") {
+        inputFile >> orderId >> side >> type >> price >> volume;
+        if (type == "CANCEL") {
             orderBook->cancelOrderLazy(orderBook->getOrder(orderId));
         }
         else {
-            inputFile >> type;
             if (type == "MARKET") {
-                inputFile >> volume;
-                auto order = std::make_shared<Order>(convertType(type),convertSide(side),volume);
+                auto order = std::make_shared<Order>(convertSide(side), convertType(type), volume);
                 orderBook->placeOrder(order);
             }
             else {
-                inputFile >> price >> volume;
-                auto order = std::make_shared<Order>(convertType(type),convertSide(side), price, volume);
+                auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
                 orderBook->placeOrder(order);
             }
 

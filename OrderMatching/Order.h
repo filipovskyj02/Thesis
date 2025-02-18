@@ -10,8 +10,8 @@
 #include "CommonTypes.h"
 class Order {
 public:
-    Order(OrderType orderType, Side side, Price price, Volume volume)
-       : id(generateId()), orderType(orderType), side(side), price(price), volume(volume) {
+    Order(Side side, OrderType orderType, Price price, Volume volume)
+       : id(generateId()), side(side), orderType(orderType), price(price), volume(volume) {
         timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
                         std::chrono::system_clock::now().time_since_epoch()).count();
         filledVolume = 0;
@@ -19,9 +19,10 @@ public:
 
     }
 
-    Order(OrderType orderType, Side side, Volume volume) : id(generateId()), orderType(orderType), side(side), volume(volume) {
+    Order(Side side, OrderType orderType, Volume volume) : id(generateId()), side(side), orderType(orderType), volume(volume) {
         timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
                        std::chrono::system_clock::now().time_since_epoch()).count();
+        price = 0;
         filledVolume = 0;
         canceled = false;
     }
@@ -48,7 +49,6 @@ public:
 
 
     bool operator<(const Order& other) const {
-        if (this->price == other.price) return this->timestamp > other.timestamp;
         return this->price < other.price;
     }
     friend std::ostream& operator<<(std::ostream& os, const Order& order) {

@@ -9,8 +9,8 @@ public class OrderBook {
     private long orderCount = 0;
 
     public OrderBook() {
-        this.bids = new PriorityQueue<>(Comparator.naturalOrder()); // Max-heap for buys
-        this.asks = new PriorityQueue<>(Comparator.reverseOrder()); // Min-heap for sells
+        this.bids = new PriorityQueue<>(Comparator.comparingDouble(Order::getPrice).reversed()); // Max-heap for buys
+        this.asks = new PriorityQueue<>(Comparator.comparingDouble(Order::getPrice)); // Min-heap for sells
         this.orders = new ArrayList<>();
     }
 
@@ -36,7 +36,7 @@ public class OrderBook {
         long count = 0;
         long totalVolume = 0;
         for (Order order : orders) {
-            if (order.getFilledVolume() > 0) {
+            if (order.getFilledVolume() == order.getOriginalVolume()) {
                 totalVolume += order.getFilledVolume();
                 count++;
             }
@@ -73,7 +73,7 @@ public class OrderBook {
                 asks.poll();
             }
         }
-        if (order.getRemainingVolume() > 0) {
+        if (order.getOrderType() == OrderType.LIMIT && order.getRemainingVolume() > 0) {
             bids.add(order);
         }
     }
@@ -98,7 +98,7 @@ public class OrderBook {
                 bids.poll();
             }
         }
-        if (order.getRemainingVolume() > 0) {
+        if (order.getOrderType() == OrderType.LIMIT && order.getRemainingVolume() > 0) {
             asks.add(order);
         }
     }
