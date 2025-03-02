@@ -11,7 +11,7 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
-    std::ifstream inputFile("../../data-gen/outputs/30000-1000000-23-03-18-02-2025.txt");
+    std::ifstream inputFile("../../data-gen/outputs/30000-2500000-08-05-02-03-2025.txt");
     if (!inputFile.is_open()) {
         throw std::runtime_error("Error opening file" );
     }

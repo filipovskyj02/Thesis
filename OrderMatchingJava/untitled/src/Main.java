@@ -4,7 +4,7 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) {
         OrderBook orderBook = new OrderBook();
-        String filename = "../../data-gen/outputs/30000-1000000-23-03-18-02-2025.txt";
+        String filename = "../data-gen/outputs/30000-2500000-08-05-02-03-2025.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String[] firstLine = reader.readLine().split(" ");
@@ -26,7 +26,6 @@ public class Main {
 
             long startTime = System.currentTimeMillis();
 
-            // Process incoming orders
             for (int i = 0; i < ordersCount; i++) {
                 String[] parts = reader.readLine().split(" ");
                 long orderId = Long.parseLong(parts[0]);

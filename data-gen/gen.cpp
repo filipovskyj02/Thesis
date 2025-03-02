@@ -11,9 +11,9 @@
 #define MAX_VOLUME 100
 #define MIN_VOLUME 1
 #define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
-#define CANCELATION_RATE 0.5 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
+#define CANCELATION_RATE 0 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 30000
-#define GENERATED_ORDERS 500000
+#define GENERATED_ORDERS 2500000
 
 enum class OrderType { MARKET, LIMIT, CANCEL };
 

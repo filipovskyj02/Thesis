@@ -56,8 +56,8 @@ public:
     }
 private:
     const OrderId id;
-    const OrderType orderType;
     const Side side;
+    const OrderType orderType;
     Price price;
     Volume volume;
     Volume filledVolume;
