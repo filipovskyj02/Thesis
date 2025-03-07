@@ -4,7 +4,7 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) {
         OrderBook orderBook = new OrderBook();
-        String filename = "../data-gen/outputs/30000-2500000-08-05-02-03-2025.txt";
+        String filename = "../../../data-gen/outputs/30000-500000-0.200000-0-02-03-2025 17-00-43.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String[] firstLine = reader.readLine().split(" ");

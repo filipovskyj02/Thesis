@@ -4,16 +4,18 @@
 #include <random>
 #include <set>
 #include <string>
-#include <format>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
 
-#define MAX_PRICE 105
-#define MIN_PRICE 95.0
-#define MAX_VOLUME 100
+#define MAX_PRICE 150
+#define MIN_PRICE 55.0
+#define MAX_VOLUME 10
 #define MIN_VOLUME 1
-#define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
+#define LIMIT_TO_MARKET_RATIO 0.2 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
 #define CANCELATION_RATE 0 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 30000
-#define GENERATED_ORDERS 2500000
+#define GENERATED_ORDERS 500000
 
 enum class OrderType { MARKET, LIMIT, CANCEL };
 
@@ -29,8 +31,12 @@ std::set<int> activeOrders;
 
 
 std::string getTimeStamp() {
-    const auto now = std::chrono::system_clock::now();
-    return std::format("{:%H-%M-%d-%m-%Y}", now);
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    return oss.str();
 }
 
 int getRandomIntFromSet(const std::set<int>& set) {
@@ -108,7 +114,12 @@ void generateOrders(std::ofstream &outFile, int numOrders, std::mt19937 &gen,
 
 
 int main() {
-    const std::string filename = std::format("outputs/{}-{}-{}.txt", INITIAL_ORDERS, GENERATED_ORDERS, getTimeStamp());
+    std::string filename = "outputs/" + std::to_string(INITIAL_ORDERS) + "-" +
+        std::to_string(GENERATED_ORDERS) + "-" +
+        std::to_string(LIMIT_TO_MARKET_RATIO) + "-" +
+        std::to_string(CANCELATION_RATE) + "-" +
+        getTimeStamp() + ".txt";
+
     std::ofstream outFile = openFile(filename);
     std::random_device rd;
     std::mt19937 gen(rd());
