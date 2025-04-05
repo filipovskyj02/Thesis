@@ -4,7 +4,9 @@
 #include <sys/mman.h>
 #include "Order.h"
 #include "OrderBook.h"
-
+#include "PostgresLogger.h"
+#include "PostgresThreadedLogger.h"
+#include <mutex>
 
 
 int main() {
@@ -25,7 +27,8 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
-    std::ifstream inputFile("../../data-gen/outputs/30000-500000-0.200000-0-02-03-2025 17-00-43.txt");
+
+    std::ifstream inputFile("../../data-gen/outputs/0-2000-0.670000-0-04-04-2025 00-46-52.txt");
 
     int initialOrdersCount;
     int ordersCount;
@@ -40,31 +43,70 @@ int main() {
         auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
         orderBook->placeOrder(order);
     }
+    //PostgresLogger logger;
+    PostgresThreadedLogger logger;
+    logger.init();
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
         inputFile >> orderId >> side >> type >> price >> volume;
         if (type == "CANCEL") {
+            logger.logCancel(orderId,std::chrono::duration_cast<std::chrono::microseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count());
             orderBook->cancelOrderLazy(orderBook->getOrder(orderId));
         }
         else {
             if (type == "MARKET") {
                 auto order = std::make_shared<Order>(convertSide(side), convertType(type), volume);
+                logger.logOrder(order);
                 orderBook->placeOrder(order);
             }
             else {
                 auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
+                logger.logOrder(order);
                 orderBook->placeOrder(order);
             }
 
         }
-       // std::this_thread::sleep_for(std::chrono::microseconds(100));
     }
-    auto now = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-    std::cout << duration.count() << "ms" << std::endl;
-
     inputFile.close();
     orderBook->countFilledCount();
+
+    auto matchingDone = std::chrono::steady_clock::now();
+
+    logger.close();
+    auto totalDone = std::chrono::steady_clock::now();
+
+    auto matchingDuration = matchingDone - start;
+    auto matchingSec = std::chrono::duration_cast<std::chrono::seconds>(matchingDuration);
+    auto matchingMs = std::chrono::duration_cast<std::chrono::milliseconds>(matchingDuration - matchingSec);
+    auto matchingUs = std::chrono::duration_cast<std::chrono::microseconds>(matchingDuration - matchingSec - matchingMs);
+
+    std::cout << "Matching duration: "
+              << matchingSec.count() << "s "
+              << matchingMs.count() << "ms "
+              << matchingUs.count() << "us\n";
+
+    auto totalDuration = totalDone - start;
+    auto totalSec = std::chrono::duration_cast<std::chrono::seconds>(totalDuration);
+    auto totalMs = std::chrono::duration_cast<std::chrono::milliseconds>(totalDuration - totalSec);
+    auto totalUs = std::chrono::duration_cast<std::chrono::microseconds>(totalDuration - totalSec - totalMs);
+
+    std::cout << "Total duration: "
+              << totalSec.count() << "s "
+              << totalMs.count() << "ms "
+              << totalUs.count() << "us\n";
+
+    auto diff = totalDuration - matchingDuration;
+    auto diffSec = std::chrono::duration_cast<std::chrono::seconds>(diff);
+    auto diffMs = std::chrono::duration_cast<std::chrono::milliseconds>(diff - diffSec);
+    auto diffUs = std::chrono::duration_cast<std::chrono::microseconds>(diff - diffSec - diffMs);
+
+    std::cout << "Logging thread after matching: "
+              << diffSec.count() << "s "
+              << diffMs.count() << "ms "
+              << diffUs.count() << "us\n";
+
+
     return 0;
 }

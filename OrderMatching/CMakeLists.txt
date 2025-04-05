@@ -49,12 +49,19 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
     -z nodlopen \
     -z noseparate-code \
     -z norelro")
-
+set(PQ_INCLUDE_DIR "/usr/include/postgresql")
+set(PQ_LIBRARY "/usr/lib/x86_64-linux-gnu/libpq.so")
 file(GLOB SOURCES "*.cpp" "*.h")
-add_executable(OrderMatching ${SOURCES})
+add_executable(OrderMatching ${SOURCES}
+        PostgresLogger.h
+        PostgresLogger.cpp
+        PostgresThreadedLogger.cpp
+        PostgresThreadedLogger.h)
 target_compile_definitions(OrderMatching PRIVATE
     CACHE_LINE_SIZE=64
     ASSUME_ALIGNED
     UNSAFE_OPTIMIZATIONS
     FORCE_INLINE_ALL
 )
+target_include_directories(OrderMatching PRIVATE ${PQ_INCLUDE_DIR})
+target_link_libraries(OrderMatching PRIVATE ${PQ_LIBRARY})
