@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 project(OrderMatching)
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_COMPILER "/usr/local/gcc-14.2.0/bin/g++-14.2.0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
@@ -52,11 +51,16 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
 set(PQ_INCLUDE_DIR "/usr/include/postgresql")
 set(PQ_LIBRARY "/usr/lib/x86_64-linux-gnu/libpq.so")
 file(GLOB SOURCES "*.cpp" "*.h")
+include_directories(include)
 add_executable(OrderMatching ${SOURCES}
         PostgresLogger.h
         PostgresLogger.cpp
         PostgresThreadedLogger.cpp
-        PostgresThreadedLogger.h)
+        PostgresThreadedLogger.h
+        KDBLogger.cpp
+        KDBLogger.h
+        FileLogger.cpp
+        FileLogger.h)
 target_compile_definitions(OrderMatching PRIVATE
     CACHE_LINE_SIZE=64
     ASSUME_ALIGNED
@@ -64,4 +68,4 @@ target_compile_definitions(OrderMatching PRIVATE
     FORCE_INLINE_ALL
 )
 target_include_directories(OrderMatching PRIVATE ${PQ_INCLUDE_DIR})
-target_link_libraries(OrderMatching PRIVATE ${PQ_LIBRARY})
+target_link_libraries(OrderMatching PRIVATE ${PQ_LIBRARY} ${CMAKE_SOURCE_DIR}/include/c.o)

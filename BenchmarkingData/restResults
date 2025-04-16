@@ -1,0 +1,8 @@
+Python (import req) -> cpp (#include "httplib.h") ~2k tps
+Python (import req) - 2 threads -> cpp (#include "httplib.h") ~2,5 tps
+Python (import req) - 4 threads -> cpp (#include "httplib.h") ~2,5 tps
+Python (import req) - 1 thread -> flask server  ~1,8 tps
+k6 -> crow server ~14k tps
+k6 -> flask server 2500 tps (threaded)
+k6 -> flask server 3400 tps (not-threaded ?)
+k6(3 parallel insances) -> crow server - 9700 each

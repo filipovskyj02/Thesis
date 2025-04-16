@@ -1,4 +1,4 @@
-                                                    Time with db (basic sync logging),    time without,  async db with batchsize = 100 (matchingtime/logger catching up after)        batchsize = 1000                      batchsize = 1000 (copy from stdin)
-0-2000-0.670000-0-04-04-2025 00-46-52.txt :         832ms                                   560us           641us/ 18ms                                                                 624us/ 10ms 442us                   634us/  6ms 815us
-1000-10000-0.670000-0.950000-05-04-2025 18-22-30:   4s 177ms                               2ms 181us        2ms 190us/84ms 731us                                                        2ms 260us/43ms 370us                2ms 187us/25ms 190us            
+                                                    Time with db (basic sync logging),    time without,  async db with batchsize = 100 (matchingtime/logger catching up after)        batchsize = 1000                      batchsize = 1000 (copy from stdin)       kdb
+0-2000-0.670000-0-04-04-2025 00-46-52.txt :         832ms                                   560us           641us/ 18ms                                                                 624us/ 10ms 442us                   634us/  6ms 815us                       623us/33ms 770us
+1000-10000-0.670000-0.950000-05-04-2025 18-22-30:   4s 177ms                               2ms 181us        2ms 190us/84ms 731us                                                        2ms 260us/43ms 370us                2ms 187us/25ms 190us                    2ms 350us/ 165ms 486us
 

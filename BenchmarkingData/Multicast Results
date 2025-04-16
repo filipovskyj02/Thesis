@@ -1,0 +1,5 @@
+1m orders (batch size = 1)    | 1m orders(batch size = 1000) | 1m orders (batch size = 500) | 1m orders (batch size = 250) | 1m orders (batch size = 125)  | 1m orders (batch size = 62) | 1m orders (batch size = 30) | 1m orders (batch size = 15)
+9 s, 800 ms                         336 ms, 27 us                   339 ms, 175 us              340 ms, 438 us                  386 ms, 246 us                  395 ms, 617 us                 401 ms, 855 us               809 ms, 545 us
+
+            
+

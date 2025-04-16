@@ -6,7 +6,7 @@
 #include "OrderBook.h"
 #include "PostgresLogger.h"
 #include "PostgresThreadedLogger.h"
-#include <mutex>
+#include "FileLogger.h"
 
 
 int main() {
@@ -28,7 +28,7 @@ int main() {
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
 
-    std::ifstream inputFile("../../data-gen/outputs/0-2000-0.670000-0-04-04-2025 00-46-52.txt");
+    std::ifstream inputFile("../../data-gen/outputs/1000-10000-0.670000-0.950000-05-04-2025 18-22-30.txt");
 
     int initialOrdersCount;
     int ordersCount;
@@ -43,9 +43,12 @@ int main() {
         auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
         orderBook->placeOrder(order);
     }
+
+    //KDBLogger logger;
     //PostgresLogger logger;
-    PostgresThreadedLogger logger;
-    logger.init();
+    //PostgresThreadedLogger logger;
+    FileLogger logger;
+    logger.init("log");
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
