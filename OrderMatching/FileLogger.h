@@ -15,6 +15,7 @@
 #include "Order.h"
 
 class FileLogger {
+
 public:
     void init(const std::string& filename);
     void close();
@@ -22,15 +23,18 @@ public:
     void logCancel(OrderId canceledOrderId, long timestamp);
 
 private:
-    void loggingThreadFunc();
+    void loggingThreadFunc(const std::string& filename);
 
     std::ofstream outFile;
     std::thread loggingThread;
     std::mutex mutex;
     std::condition_variable cv;
     std::atomic<bool> running{true};
+    std::queue<std::shared_ptr<Order>> orderQueue;
+    std::queue<std::pair<OrderId, long>> cancelQueue;
+    void flushCancelBatch(std::vector<std::pair<OrderId, long>>& batch);
+    void flushOrderBatch(std::vector<std::shared_ptr<Order>>& batch);
 
-    std::queue<std::string> messageQueue;
 };
 
 

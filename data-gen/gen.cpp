@@ -15,7 +15,7 @@
 #define LIMIT_TO_MARKET_RATIO 0.67 // https://www.researchgate.net/figure/Distribution-of-order-type-and-order-size_tbl2_5216952
 #define CANCELATION_RATE 0.95 // https://www.sciencedirect.com/science/article/abs/pii/S0378426621001291 -- cannot be properly simulated as the figure refers to a longer timeline
 #define INITIAL_ORDERS 1000
-#define GENERATED_ORDERS 10000
+#define GENERATED_ORDERS 500000
 
 enum class OrderType { MARKET, LIMIT, CANCEL };
 
@@ -92,23 +92,22 @@ void generateOrders(std::ofstream &outFile, int numOrders, std::mt19937 &gen,
         Side side = (zeroToOneDist(gen) >= 0.5) ? Side::BUY : Side::SELL;
         Price price = priceDist(gen);
         Volume volume = volumeDist(gen);
-        if (zeroToOneDist(gen) <= LIMIT_TO_MARKET_RATIO) {
-            if (zeroToOneDist(gen) <= CANCELATION_RATE && !activeOrders.empty()) {
-                int canceledId = getRandomIntFromSet(activeOrders);
-                printToStream(outFile, canceledId, Side::BUY, OrderType::CANCEL, 0, 0);
-                activeOrders.erase(canceledId);
-            }
-            else {
+        if (zeroToOneDist(gen) <= CANCELATION_RATE && !activeOrders.empty()) {
+            int canceledId = getRandomIntFromSet(activeOrders);
+            printToStream(outFile, canceledId, Side::BUY, OrderType::CANCEL, 0, 0);
+            activeOrders.erase(canceledId);
+        }
+        else {
+            if (zeroToOneDist(gen) <= LIMIT_TO_MARKET_RATIO) {
                 printToStream(outFile, orderId, side, OrderType::LIMIT, price, volume);
                 activeOrders.insert(orderId);
                 orderId++;
             }
+            else {
+                printToStream(outFile, orderId, side, OrderType::MARKET, 0, volume);
+                orderId++;
+            }
         }
-        else {
-            printToStream(outFile, orderId, side, OrderType::MARKET, 0, volume);
-            orderId++;
-        }
-
     }
 }
 

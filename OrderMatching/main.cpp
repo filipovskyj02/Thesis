@@ -7,6 +7,7 @@
 #include "PostgresLogger.h"
 #include "PostgresThreadedLogger.h"
 #include "FileLogger.h"
+#include "KDBLogger.h"
 
 
 int main() {
@@ -28,7 +29,7 @@ int main() {
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
 
-    std::ifstream inputFile("../../data-gen/outputs/1000-10000-0.670000-0.950000-05-04-2025 18-22-30.txt");
+    std::ifstream inputFile("../../data-gen/outputs/1000-500000-0.670000-0.950000-19-04-2025 02-55-07.txt");
 
     int initialOrdersCount;
     int ordersCount;
@@ -44,11 +45,12 @@ int main() {
         orderBook->placeOrder(order);
     }
 
-    //KDBLogger logger;
+    KDBLogger logger;
     //PostgresLogger logger;
     //PostgresThreadedLogger logger;
-    FileLogger logger;
-    logger.init("log");
+    //FileLogger logger;
+    //logger.init("log2.txt");
+    logger.init();
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
@@ -76,7 +78,6 @@ int main() {
     orderBook->countFilledCount();
 
     auto matchingDone = std::chrono::steady_clock::now();
-
     logger.close();
     auto totalDone = std::chrono::steady_clock::now();
 

@@ -22,8 +22,7 @@ void session(tcp::socket socket) {
 
             std::cout << "Received: " << message << "\n";
 
-            // Optionally, you can process the message or send a response.
-            // For instance, echo back "OK\n" to the client.
+
             std::string reply = "OK\n";
             boost::asio::write(socket, boost::asio::buffer(reply));
         }
@@ -43,8 +42,6 @@ int main() {
         while (true) {
             tcp::socket socket(io_context);
             acceptor.accept(socket);
-            // For simplicity, run the session on the same thread.
-            // In a production system, spawn a new thread or use asynchronous handlers.
             session(std::move(socket));
         }
     } catch (std::exception &e) {

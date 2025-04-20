@@ -52,7 +52,7 @@ void PostgresThreadedLogger::loggingThreadFunc() {
     std::vector<std::shared_ptr<Order>> orderBatch;
     std::vector<std::pair<OrderId, long>> cancelBatch;
     const auto flushInterval = std::chrono::milliseconds(10);
-    const size_t maxBatchSize = 1000;
+    const size_t maxBatchSize = 50000;
 
     while (running || !orderQueue.empty() || !cancelQueue.empty()) {
         {

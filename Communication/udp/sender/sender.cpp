@@ -11,7 +11,7 @@ int main() {
     const char*        MCAST_ADDR     = "239.255.0.1";  // Administratively‑scoped multicast
     const unsigned short MCAST_PORT   = 30001;
     const int          TOTAL_PACKETS  = 1000000;
-    const int          BATCH_SIZE     = 15;
+    const int          BATCH_SIZE     = 1;
 
     asio::io_context   io_context;
     udp::socket        socket(io_context, udp::v4());

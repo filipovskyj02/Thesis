@@ -9,7 +9,7 @@ using boost::asio::ip::tcp;
 
 int main() {
     try {
-        const int TOTAL_ORDERS = 10000; // Use a lower number due to high overhead
+        const int TOTAL_ORDERS = 1000000; // Use a lower number due to high overhead
         std::string message_base = "1743877066453455 BUY LIMIT 103.891 4\n";
 
         auto start = std::chrono::steady_clock::now();

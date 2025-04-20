@@ -1,12 +1,9 @@
-//
-// Created by kuba on 4/6/25.
-//
-
 #include "KDBLogger.h"
 
 #include <iostream>
 #include <sstream>
 
+constexpr size_t BATCH_SIZE = 50000;
 void KDBLogger::initConnection() {
     conn = khpu((S)"localhost", 5000, (S)"");
     if (conn < 0) {
@@ -48,46 +45,91 @@ void KDBLogger::loggingThreadFunc() {
     while (running || !orderQueue.empty() || !cancelQueue.empty()) {
         std::unique_lock<std::mutex> lock(mutex);
         cv.wait(lock, [this] {
-            return !orderQueue.empty() || !cancelQueue.empty() || !running;
+            return orderQueue.size() >= BATCH_SIZE ||
+                   cancelQueue.size() >= BATCH_SIZE ||
+                   (!running && (!orderQueue.empty() || !cancelQueue.empty()));
         });
 
-        while (!orderQueue.empty()) {
-            auto order = orderQueue.front();
-            orderQueue.pop();
-            lock.unlock();
+        if (!cancelQueue.empty() && (cancelQueue.size() >= BATCH_SIZE || !running)) {
+            size_t batchSize = std::min(BATCH_SIZE, cancelQueue.size());
+
+            std::ostringstream timestamps, orderIds;
+            timestamps << "(";
+            orderIds << "(";
+
+            for (size_t i = 0; i < batchSize; ++i) {
+                auto [orderId, timestamp] = cancelQueue.front();
+                cancelQueue.pop();
+
+                timestamps << timestamp;
+                orderIds << orderId;
+
+                if (i < batchSize - 1) {
+                    timestamps << " ";
+                    orderIds << " ";
+                }
+            }
+
+            timestamps << ")";
+            orderIds << ")";
 
             std::ostringstream query;
-            query << "`orders insert ("
-                  << order->getId() << "; "
-                  << order->getTimestamp() << "; "
-                  << "`" << (order->getSide() == Side::BUY ? "BUY" : "SELL") << "; "
-                  << "`" << (order->getOrderType() == OrderType::LIMIT ? "LIMIT" : "MARKET") << "; "
-                  << order->getPrice() << "e; "
-                  << order->getOriginalVolume() << ")";
+            query << "`cancels insert (" << timestamps.str() << "; " << orderIds.str() << ")";
 
-            K result = k(conn, (S)query.str().c_str(), (K)0);
-            if (!result || result->t == -128)
-                std::cerr << "Order insert failed: " << (result ? result->s : "NULL") << "\n";
-            r0(result);
-
+            lock.unlock();
+            k(-conn, (S)query.str().c_str(), (K)0);
             lock.lock();
         }
 
-        while (!cancelQueue.empty()) {
-            auto [orderId, timestamp] = cancelQueue.front();
-            cancelQueue.pop();
-            lock.unlock();
+        if (!orderQueue.empty() && (orderQueue.size() >= BATCH_SIZE || !running)) {
+            size_t batchSize = std::min(BATCH_SIZE, orderQueue.size());
+
+            std::ostringstream ids, timestamps, sides, orderTypes, prices, volumes;
+            ids << "(";
+            timestamps << "(";
+            sides << "(";
+            orderTypes << "(";
+            prices << "(";
+            volumes << "(";
+
+            for (size_t i = 0; i < batchSize; ++i) {
+                auto order = orderQueue.front();
+                orderQueue.pop();
+
+                ids << order->getId();
+                timestamps << order->getTimestamp();
+                sides << "`" << (order->getSide() == Side::BUY ? "BUY" : "SELL");
+                orderTypes << "`" << (order->getOrderType() == OrderType::LIMIT ? "LIMIT" : "MARKET");
+                prices << order->getPrice() << "e";
+                volumes << order->getOriginalVolume();
+
+                if (i < batchSize - 1) {
+                    ids << " ";
+                    timestamps << " ";
+                    sides << " ";
+                    orderTypes << " ";
+                    prices << " ";
+                    volumes << " ";
+                }
+            }
+
+            ids << ")";
+            timestamps << ")";
+            sides << ")";
+            orderTypes << ")";
+            prices << ")";
+            volumes << ")";
 
             std::ostringstream query;
-            query << "`cancels insert ("
-                  << timestamp << "; "
-                  << orderId << ")";
+            query << "`orders insert (" << ids.str() << "; "
+                  << timestamps.str() << "; "
+                  << sides.str() << "; "
+                  << orderTypes.str() << "; "
+                  << prices.str() << "; "
+                  << volumes.str() << ")";
 
-            K result = k(conn, (S)query.str().c_str(), (K)0);
-            if (!result || result->t == -128)
-                std::cerr << "Cancel insert failed: " << (result ? result->s : "NULL") << "\n";
-            r0(result);
-
+            lock.unlock();
+            k(-conn, (S)query.str().c_str(), (K)0);
             lock.lock();
         }
     }

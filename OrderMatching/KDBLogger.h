@@ -29,7 +29,7 @@ private:
     std::condition_variable cv;
     std::atomic<bool> running{true};
     std::thread loggingThread;
-    int conn;;
+    I conn;;
 
     void initConnection();
 };
