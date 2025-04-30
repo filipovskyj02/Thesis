@@ -4,8 +4,7 @@
 
 // Highest bids on the top is expected
 TEST(OrderBookTest, MultipleBids) {
-    auto orderBook = std::make_shared<OrderBook>();
-
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto firstOrder = std::make_shared<Order>(BUY, LIMIT, 123, 10);
     auto secondOrder = std::make_shared<Order>(BUY, LIMIT, 124, 10);
     auto thirdOrder = std::make_shared<Order>(BUY, LIMIT, 125, 10);
@@ -28,8 +27,7 @@ TEST(OrderBookTest, MultipleBids) {
 
 // Lowest ask at the top is expected
 TEST(OrderBookTest, MultipleAsks) {
-    auto orderBook = std::make_shared<OrderBook>();
-
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto firstOrder = std::make_shared<Order>(SELL, LIMIT, 123, 10);
     auto secondOrder = std::make_shared<Order>(SELL, LIMIT, 124, 10);
     auto thirdOrder = std::make_shared<Order>(SELL, LIMIT, 125, 10);
@@ -51,7 +49,7 @@ TEST(OrderBookTest, MultipleAsks) {
 }
 
 TEST(OrderBookTest, FulfilledLimit) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
 
     auto buy = std::make_shared<Order>(BUY, LIMIT, 100, 10);
     auto sell = std::make_shared<Order>(SELL, LIMIT, 100, 10);
@@ -68,7 +66,7 @@ TEST(OrderBookTest, FulfilledLimit) {
 }
 
 TEST(OrderBookTest, PartiallyFulfilledLimit) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
 
     auto buy = std::make_shared<Order>(BUY, LIMIT, 100, 200);
     auto sell = std::make_shared<Order>(SELL, LIMIT, 100, 10);
@@ -88,7 +86,7 @@ TEST(OrderBookTest, PartiallyFulfilledLimit) {
 
 // Assert later order with the same price is behind the first in the bid heap
 TEST(OrderBookTest, PriceTimePriorityBids) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
 
     auto firstOrder = std::make_shared<Order>(BUY, LIMIT, 123, 10);
     // Make sure timestamp is different
@@ -104,7 +102,7 @@ TEST(OrderBookTest, PriceTimePriorityBids) {
 
 // Assert later order with the same price is behind the first in the ask heap
 TEST(OrderBookTest, PriceTimePriorityAsks) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
 
     auto firstOrder = std::make_shared<Order>(SELL, LIMIT, 123, 10);
     // Make sure timestamp is different
@@ -119,7 +117,7 @@ TEST(OrderBookTest, PriceTimePriorityAsks) {
 }
 
 TEST(OrderBookTest, MarketAgainstMultipleLimits) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
 
     auto firstLimit = std::make_shared<Order>(SELL, LIMIT, 123, 10);
     auto secondLimit = std::make_shared<Order>(SELL, LIMIT, 124, 10);
@@ -148,14 +146,14 @@ TEST(OrderBookTest, MarketAgainstMultipleLimits) {
 }
 
 TEST(OrderBookTest, MarketOrderNoLimits) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto marketOrder = std::make_shared<Order>(BUY, MARKET, 123, 10);
 
     EXPECT_FALSE(orderBook->placeOrder(marketOrder));
 }
 
 TEST(OrderBookTest, MarketOrderNotEnoughLiquidity) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto marketOrder = std::make_shared<Order>(BUY, MARKET, 30);
 
     auto firstLimit = std::make_shared<Order>(SELL, LIMIT, 123, 10);
@@ -176,7 +174,7 @@ TEST(OrderBookTest, MarketOrderNotEnoughLiquidity) {
 }
 
 TEST(OrderBookTest, CanceledOrderIsNotFulfilledByLimit) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto limitOrderSell = std::make_shared<Order>(SELL, LIMIT, 100, 10);
     auto limitOrderBuy = std::make_shared<Order>(BUY, LIMIT, 100, 10);
 
@@ -197,7 +195,7 @@ TEST(OrderBookTest, CanceledOrderIsNotFulfilledByLimit) {
 
 
 TEST(OrderBookTest, CanceledOrderIsNotFulfilledByMarket) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto limitOrderSell = std::make_shared<Order>(SELL, LIMIT, 100, 10);
     auto marketOrderBuy = std::make_shared<Order>(BUY, MARKET, 10);
 
@@ -216,14 +214,14 @@ TEST(OrderBookTest, CanceledOrderIsNotFulfilledByMarket) {
 }
 
 TEST(OrderBookTest, MarketOrderIsNotCancellable) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto marketOrderBuy = std::make_shared<Order>(BUY, MARKET, 10);
 
     EXPECT_FALSE(orderBook->cancelOrderLazy(marketOrderBuy));
 }
 
 TEST(OrderBookTest, FulfilledOrderIsNotCancellable) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto limitSell = std::make_shared<Order>(SELL, LIMIT, 100, 40);
     auto limitOrderBuy = std::make_shared<Order>(BUY, LIMIT, 100, 10);
 
@@ -235,7 +233,7 @@ TEST(OrderBookTest, FulfilledOrderIsNotCancellable) {
 }
 
 TEST(OrderBookTest, PartiallyFulfilledOrderIsCancellable) {
-    auto orderBook = std::make_shared<OrderBook>();
+    auto orderBook = std::make_unique<OrderBook>(); 
     auto limitSell = std::make_shared<Order>(SELL, LIMIT, 100, 40);
     auto limitOrderBuy = std::make_shared<Order>(BUY, LIMIT, 100, 10);
 
@@ -245,4 +243,87 @@ TEST(OrderBookTest, PartiallyFulfilledOrderIsCancellable) {
     EXPECT_EQ(limitOrderBuy->getRemainingVolume(), 0);
     EXPECT_EQ(limitSell->getRemainingVolume(), 30);
     EXPECT_TRUE(orderBook->cancelOrderLazy(limitSell));
+}
+
+TEST(OrderBookTest, AggregateVolumeBuy) {
+    const Price priceLevel = 100;
+    auto orderBook = std::make_unique<OrderBook>(); 
+    auto limitBuy1 = std::make_shared<Order>(BUY, LIMIT, priceLevel, 10);
+    auto limitBuy2 = std::make_shared<Order>(BUY, LIMIT, priceLevel, 20);
+    auto limitBuy3 = std::make_shared<Order>(BUY, LIMIT, priceLevel, 30);
+
+    auto limitBuyDifferentPrice = std::make_shared<Order>(BUY, LIMIT, 100.5, 10);
+
+    orderBook->placeOrder(limitBuy1);
+    // levels exists
+    EXPECT_TRUE(orderBook->aggregatedBids.count(priceLevel));
+    EXPECT_EQ(orderBook->aggregatedBids[priceLevel], 10);
+    orderBook->placeOrder(limitBuy2);
+    EXPECT_EQ(orderBook->aggregatedBids[priceLevel], 30);
+    orderBook->placeOrder(limitBuy3);
+    orderBook->placeOrder(limitBuyDifferentPrice);
+    EXPECT_EQ(orderBook->aggregatedBids[priceLevel], 60);
+
+    EXPECT_TRUE(orderBook->aggregatedBids.count(100.5));
+    EXPECT_EQ(orderBook->aggregatedBids[100.5], 10);
+}
+
+TEST(OrderBookTest, AggregateVolumeSell) {
+    const Price priceLevel = 100;
+    auto orderBook = std::make_unique<OrderBook>(); 
+    auto limitSell1 = std::make_shared<Order>(SELL, LIMIT, priceLevel, 10);
+    auto limitSell2 = std::make_shared<Order>(SELL, LIMIT, priceLevel, 20);
+    auto limitSell3 = std::make_shared<Order>(SELL, LIMIT, priceLevel, 30);
+
+    auto limitSellDifferentPrice = std::make_shared<Order>(SELL, LIMIT, 100.5, 10);
+
+    orderBook->placeOrder(limitSell1);
+
+    EXPECT_TRUE(orderBook->aggregatedAsks.count(priceLevel));
+    EXPECT_EQ(orderBook->aggregatedAsks[priceLevel], 10);
+    orderBook->placeOrder(limitSell2);
+    EXPECT_EQ(orderBook->aggregatedAsks[priceLevel], 30);
+    orderBook->placeOrder(limitSell3);
+    orderBook->placeOrder(limitSellDifferentPrice);
+    EXPECT_EQ(orderBook->aggregatedAsks[priceLevel], 60);
+
+    EXPECT_TRUE(orderBook->aggregatedAsks.count(100.5));
+    EXPECT_EQ(orderBook->aggregatedAsks[100.5], 10);
+}
+
+TEST(OrderBookTest, AggregateVolumeBuyWithLimitSell) {
+    auto orderBook = std::make_unique<OrderBook>(); 
+    auto limitBuy = std::make_shared<Order>(BUY, LIMIT, 100, 30);
+    auto limitSell = std::make_shared<Order>(SELL, LIMIT, 100, 10);
+    orderBook->placeOrder(limitBuy);
+    EXPECT_TRUE(orderBook->aggregatedBids.count(100));
+    EXPECT_EQ(orderBook->aggregatedBids[100], 30);
+    orderBook->placeOrder(limitSell);
+    EXPECT_EQ(orderBook->aggregatedBids[100], 20);
+
+    EXPECT_FALSE(orderBook->aggregatedAsks.count(100));
+}
+
+TEST(OrderBookTest, AggregateVolumeBuyWithMarketSell) {
+    auto orderBook = std::make_unique<OrderBook>();    auto limitBuy = std::make_shared<Order>(BUY, LIMIT, 100, 30);
+    auto marketSell = std::make_shared<Order>(SELL, MARKET, 10);
+    orderBook->placeOrder(limitBuy);
+    EXPECT_TRUE(orderBook->aggregatedBids.count(100));
+    EXPECT_EQ(orderBook->aggregatedBids[100], 30);
+    orderBook->placeOrder(marketSell);
+    EXPECT_EQ(orderBook->aggregatedBids[100], 20);
+}
+
+TEST(OrderBookTest, AggregateVolumeBuyWithLimitSellEmptyingPriceLevel) {
+    auto orderBook = std::make_unique<OrderBook>();
+    auto limitBuy = std::make_shared<Order>(BUY, LIMIT, 100, 30);
+    auto limitSell = std::make_shared<Order>(SELL, LIMIT, 100, 60);
+    orderBook->placeOrder(limitBuy);
+    EXPECT_TRUE(orderBook->aggregatedBids.count(100));
+    EXPECT_EQ(orderBook->aggregatedBids[100], 30);
+    orderBook->placeOrder(limitSell);
+    EXPECT_EQ(orderBook->aggregatedBids[100], 0);
+
+    EXPECT_TRUE(orderBook->aggregatedAsks.count(100));
+    EXPECT_EQ(orderBook->aggregatedAsks[100], 30);
 }
