@@ -3,6 +3,8 @@
 #include <csignal>
 #include <chrono>
 #include <librdkafka/rdkafkacpp.h>
+#include <bits/stdc++.h>
+
 
 static volatile sig_atomic_t run = 1;
 
@@ -24,6 +26,8 @@ public:
 };
 
 int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
     std::string brokers = "localhost:9092";
     std::string group_id = "cpp_consumer_group";
     std::string topic = "test";
@@ -60,7 +64,8 @@ int main() {
     size_t recievedCnt = 0;
     std::vector<std::string> resVec(1000000);
     while (run && recievedCnt < 1000000) {
-        RdKafka::Message *msg = consumer->consume(1);
+        rd_kafka_consumer_poll(consumer, 400);
+        RdKafka::Message *msg = consumer->consume(1000);
         if (msg->err()) {
             if (msg->err() == RdKafka::ERR__TIMED_OUT) {
                 // Do nothing — expected idle poll
@@ -73,8 +78,8 @@ int main() {
             if (recievedCnt == 1) {
                 start = std::chrono::steady_clock::now();
             }
-            resVec[recievedCnt - 1] = static_cast<char *>(msg->payload());
-            //std::cout << "Received message: " << static_cast<const char *>(msg->payload()) << '\n';
+            //resVec[recievedCnt - 1] = static_cast<char *>(msg->payload());
+            std::cout << "Received message: " << static_cast<const char *>(msg->payload()) << '\n';
         }
         delete msg;
     }

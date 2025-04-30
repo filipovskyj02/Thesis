@@ -1,13 +1,11 @@
-//
-// Created by JFili on 28.01.2025.
-//
 #pragma once
 
 #include <chrono>
 
-#include "OrderType.h"
 #include "SideEnum.h"
 #include "CommonTypes.h"
+#include "OrderType.h"
+
 class Order {
 public:
     Order(Side side, OrderType orderType, Price price, Volume volume)
