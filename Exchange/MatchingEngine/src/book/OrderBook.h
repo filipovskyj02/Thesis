@@ -1,20 +1,20 @@
 #ifndef ORDERBOOK_H
 #define ORDERBOOK_H
-#include <iostream>
+
 #include <queue>
 #include <unordered_map>
 
-#include "Order.h"
+#include "../common/SafeQueue.h"
+#include "../io/dissemination/DisseminationEvent.h"
+#include "../common/Order.h"
 
 class OrderBook {
 public:
+    OrderBook(const std::string& ticker, SafeQueue<std::shared_ptr<Order>>& inQueue, SafeQueue<DisseminationEvent>& disseminationQueue);
+    void run();
     bool placeOrder(const std::shared_ptr<Order>& order);
     bool cancelOrderLazy(const std::shared_ptr<Order>& order);
-    void countFilledCount();
     std::shared_ptr<Order>& getOrder(OrderId id);
-    OrderId orderCount = 0;
-    int canceledFullfiledOrderCount = 0;
-    int canceledOrderCount = 0;
     Price lastPrice = 0;
 
     struct OrderCompare {
@@ -34,28 +34,26 @@ public:
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, OrderCompare> bids;
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, OrderCompareReverse> asks;
     std::vector<std::shared_ptr<Order>> orders;
-    std::unordered_map<double, Volume> aggregatedBids;
-    std::unordered_map<double, Volume> aggregatedAsks;
+    std::unordered_map<Price, Volume> aggregatedBids;
+    std::unordered_map<Price, Volume> aggregatedAsks;
 
 private:
+    const std::string& ticker;
+    SafeQueue<std::shared_ptr<Order>>& inQueue;
+    SafeQueue<DisseminationEvent>& disseminationQueue;
 
-    void storeOrder(std::shared_ptr<Order> order);
+    void storeOrder(const std::shared_ptr<Order>& order) { orders.emplace_back(order); }
+
     bool executeSell(const std::shared_ptr<Order>& order);
     bool executeBuy(const std::shared_ptr<Order>& order);
-
-
+    void maybeEmitLevel1();
+    void emitTradeEvent(Volume matchedVolume);
+    std::vector<Price> touchedLevels;
+    void emitLevel2UpdateBatch();
+    Price lastBestBidPrice = -1;
+    Volume lastBestBidSize  = 0;
+    Price lastBestAskPrice = -1;
+    Volume lastBestAskSize  = 0;
 
 };
-
-inline void OrderBook::countFilledCount() {
-    uint64_t count = 0;
-    uint64_t totalVolume = 0;
-    for (uint64_t i = 0; i < orderCount; i++) {
-        if (orders[i] != nullptr && orders[i]->getFilledVolume() == orders[i]->getOriginalVolume()) {
-            totalVolume+= orders[i]->getFilledVolume();
-            count++;
-        }
-    }
-    std::cout << " Total filled volume: " << totalVolume <<  " by " <<  count << " orders" << std::endl;
-}
 #endif //ORDERBOOK_H

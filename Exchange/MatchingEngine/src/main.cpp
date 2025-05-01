@@ -1,59 +1,21 @@
-#include <atomic>
-#include <kafka/KafkaConsumer.h>
+#include "core/EngineConfig.h"
+#include "core/MatchingEngine.h"
 
-#include <iostream>
-#include <signal.h>
-#include <string>
-
-std::atomic_bool running = {true};
-
-void stopRunning(int sig) {
-    if (sig != SIGINT) return;
-
-    if (running) {
-        running = false;
-    } else {
-        // Restore the signal handler, -- to avoid stuck with this handler
-        signal(SIGINT, SIG_IGN); // NOLINT
-    }
-}
 
 int main()
 {
-    using namespace kafka;
-    using namespace kafka::clients::consumer;
+    const EngineConfig cfg{
+            {"AAPL", "GOOG"},           // tickers
+            "localhost:9092",           // kafkaBroker
+            "orders",                   // kafkaTopic
+            "./logs",                   // logDirectory (unused for now)
+            "239.255.0.1",              // multicastAddress
+            30001                       // multicastPort
+        };
 
-    // Use Ctrl-C to terminate the program
-    signal(SIGINT, stopRunning);    // NOLINT
-
-    const std::string brokers = "localhost:9092";
-    const Topic topic = "test";            // NOLINT
-
-    // Prepare the configuration
-    const Properties props({{"bootstrap.servers", {brokers}},
-                            {"max.poll.records", {"10000"}}});
-
-    // Create a consumer instance
-    KafkaConsumer consumer(props);
-
-    // Subscribe to topics
-    consumer.subscribe({topic});
-    int cnt = 0;
-    auto start = std::chrono::steady_clock::now();
-    while (running) {
-        // Poll messages from Kafka brokers
-        auto records = consumer.poll(std::chrono::milliseconds(10));
-
-        for (const auto& record: records) {
-            if (!record.error()) {
-                std::cout << record.value().toString() << std::endl;
-
-            } else {
-                std::cerr << record.toString() << std::endl;
-            }
-        }
-    }
-
-    // No explicit close is needed, RAII will take care of it
-    consumer.close();
+    // 2) Construct and start
+    MatchingEngine engine(cfg);
+    engine.start();
+    std::this_thread::sleep_for(std::chrono::seconds(1000));
+    engine.stop();
 }
