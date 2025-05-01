@@ -5,6 +5,17 @@
 #include "SideEnum.h"
 #include "CommonTypes.h"
 #include "OrderType.h"
+inline const char* toString(Side s) noexcept {
+    return s == BUY  ? "BUY"
+         : s == SELL ? "SELL"
+         :             "UNKNOWN";
+}
+
+inline const char* toString(OrderType t) noexcept {
+    return t == MARKET ? "MARKET"
+         : t == LIMIT  ? "LIMIT"
+         :               "UNKNOWN";
+}
 
 class Order {
 public:
@@ -52,8 +63,17 @@ public:
         }
         return this->price < other.price;
     }
-    friend std::ostream& operator<<(std::ostream& os, const Order& order) {
-        return os << order.id << " " << order.side << " " << order.price << " " << order.volume << " " << order.timestamp << " filled volume: " << order.filledVolume  << '\n';
+
+    friend std::ostream& operator<<(std::ostream& os, const Order& o) {
+        os
+          << "id="        << o.id
+          << " side="     << toString(o.side)
+          << " type="     << toString(o.orderType)
+          << " price="    << o.price
+          << " volume="   << o.volume
+          << " ts="       << o.timestamp
+          << " filled="   << o.filledVolume;
+        return os;
     }
 private:
     const OrderId id;
@@ -70,6 +90,7 @@ private:
         static int currentId = 0;
         return currentId++;
     }
+
 };
 #ifndef ORDER_H
 #define ORDER_H

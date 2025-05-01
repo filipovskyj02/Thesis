@@ -12,6 +12,10 @@ add_executable(MatchingEngine main.cpp
         io/dissemination/DisseminationEvent.h
         io/dissemination/Distributor.cpp
         io/dissemination/Distributor.h
+        io/logging/Logger.cpp
+        io/logging/Logger.h
+        io/logging/LogEvent.h
+        common/Utils.h
 )
 
 target_link_libraries(MatchingEngine

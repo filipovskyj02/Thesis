@@ -19,15 +19,11 @@ public:
 
     ~Distributor();
 
-    // Launch the distributor thread
-    void Start();
-
-    // Signal the thread to stop and join it
-    void Stop();
+    void start();
+    void stop();
 
 private:
-    // Thread entry point: pop events and send them
-    void Run();
+    void run();
     boost::asio::io_context& ioContext;
     std::string             multicastAddress;
     uint16_t                multicastPort;
@@ -35,5 +31,4 @@ private:
     std::thread             distributorThread;
     std::atomic<bool>       running{false};
 };
-
 #endif //DISTRIBUTOR_H

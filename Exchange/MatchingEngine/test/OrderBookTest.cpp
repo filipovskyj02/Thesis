@@ -6,8 +6,9 @@
 namespace {
     std::unique_ptr<OrderBook> makeTestOrderBook() {
         static SafeQueue<std::shared_ptr<Order>> dummyInQueue;
-        static SafeQueue<DisseminationEvent>     dummyOutQueue;
-        return std::make_unique<OrderBook>("AAPL", dummyInQueue, dummyOutQueue);
+        static SafeQueue<DisseminationEvent>     dummyDisQueue;
+        static SafeQueue<LogEvent>     dummyLogQueue;
+        return std::make_unique<OrderBook>("AAPL", dummyInQueue, dummyDisQueue, dummyLogQueue);
     }
 }
 

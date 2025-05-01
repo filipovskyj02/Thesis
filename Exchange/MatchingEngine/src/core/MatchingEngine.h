@@ -7,6 +7,9 @@
 #include "../io/dissemination/DisseminationEvent.h"
 #include "../book/OrderBook.h"
 #include "../io/dissemination/Distributor.h"
+#include "../io/logging/Logger.h"
+#include "../io/logging/LogEvent.h"
+
 
 class MatchingEngine {
 public:
@@ -34,10 +37,11 @@ private:
 
     boost::asio::io_context ioContext;
     Distributor distributor;
+    Logger logger;
 
     void runKafkaConsumer();
     void runOrderBook(size_t idx);
-    //void runPersistenceLogger();
+    void runPersistenceLogger();
     void runMarketDistributor();
 };
 #endif //MATCHINGENGINE_H

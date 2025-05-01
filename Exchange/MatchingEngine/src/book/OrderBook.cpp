@@ -1,11 +1,16 @@
 #include "OrderBook.h"
 
+#include <boost/smart_ptr/shared_ptr.hpp>
+
 OrderBook::OrderBook(const std::string ticker,
                      SafeQueue<std::shared_ptr<Order>>& inQueue,
-                     SafeQueue<DisseminationEvent> &disseminationQueue)
+                     SafeQueue<DisseminationEvent> &disseminationQueue,
+                     SafeQueue<LogEvent> &logQueue)
         :   ticker(ticker),
             inQueue(inQueue),
-            disseminationQueue(disseminationQueue) {}
+            disseminationQueue(disseminationQueue),
+            logQueue(logQueue)
+{}
 
 void OrderBook::run() {
     while (true) {
@@ -48,6 +53,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         topBid->setFilledVolume(topBid->getFilledVolume() + matchedVolume);
 
         afterMatch(matchedVolume);
+        logEvent(order);
 
         if (topBid->getRemainingVolume() == 0) {
             bids.pop();
@@ -84,7 +90,8 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topAsk->setFilledVolume(topAsk->getFilledVolume() + matchedVolume);
 
-       afterMatch(matchedVolume);
+        afterMatch(matchedVolume);
+        logEvent(order);
 
         if (topAsk->getRemainingVolume() == 0) {
             asks.pop();
@@ -168,4 +175,12 @@ void OrderBook::emitLevel2UpdateBatch() {
         .timestamp = std::chrono::system_clock::now()
     };
     disseminationQueue.push(DisseminationEvent{u});
+}
+
+void OrderBook::logEvent(const std::shared_ptr<Order>& order) {
+    logQueue.push(LogEvent{
+        ticker,
+        order,
+        std::chrono::system_clock::now()
+   });
 }

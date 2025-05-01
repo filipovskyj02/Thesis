@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../../common/CommonTypes.h"
+#include "../../common/Utils.h"
 
 struct TradeEvent {
     std::string   ticker;
@@ -32,18 +33,6 @@ using DisseminationEvent = std::variant<
     Level1Update,
     Level2Update
 >;
-
-// Format a time_point as "YYYY-MM-DDThh:mm:ss.sss"
-inline std::string formatTimestamp(const std::chrono::system_clock::time_point& tp) {
-    using namespace std::chrono;
-    auto t  = system_clock::to_time_t(tp);
-    auto ms = duration_cast<milliseconds>(tp.time_since_epoch()) % 1000;
-    std::tm tm = *std::gmtime(&t);
-    std::ostringstream ss;
-    ss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")
-       << '.' << std::setw(3) << std::setfill('0') << ms.count();
-    return ss.str();
-}
 
 // Serialize TradeEvent
 inline std::string toString(const TradeEvent& e) {

@@ -9,7 +9,9 @@ MatchingEngine::MatchingEngine(EngineConfig cfg)
     distributor(ioContext,
                 config.multicastAddress,
                 config.multicastPort,
-                distQueue)
+                distQueue),
+    logger(config.logDirectory,
+           persistQueue)
 {
     orderQueues.reserve(config.tickers.size());
 }
@@ -20,6 +22,7 @@ MatchingEngine::~MatchingEngine() {
 
 void MatchingEngine::start() {
     runMarketDistributor();
+    runPersistenceLogger();
     kafkaThread = std::thread(&MatchingEngine::runKafkaConsumer, this);
 
     for (size_t i = 0; i < config.tickers.size(); ++i) {
@@ -29,7 +32,7 @@ void MatchingEngine::start() {
     }
 
     for (size_t i = 0; i < config.tickers.size(); ++i) {
-        orderBooks.emplace_back(std::make_unique<OrderBook>(config.tickers[i], *orderQueues[i], distQueue));
+        orderBooks.emplace_back(std::make_unique<OrderBook>(config.tickers[i], *orderQueues[i], distQueue, persistQueue));
     }
     // one thread per ticker
     for (size_t i = 0; i < config.tickers.size(); ++i) {
@@ -53,12 +56,13 @@ void MatchingEngine::stop() {
     }
 
     distQueue.close();
-    distributor.Stop();
+    distributor.stop();
+    logger.stop();
 
 }
 
 void MatchingEngine::runKafkaConsumer() {
-    std::string path = "../../../../Benchmarking/DataGen/outputs/0-2000-0.670000-0-04-04-2025 00-46-52.txt";  // add this to EngineConfig
+    std::string path = "../../../../Benchmarking/DataGen/outputs/100000-50000-0.670000-0-01-05-2025 16-09-32.txt";  // add this to EngineConfig
     std::ifstream inputFile(path);
     if (!inputFile.is_open()) {
         throw std::runtime_error("Cannot open data file: " + path);
@@ -109,10 +113,14 @@ void MatchingEngine::runKafkaConsumer() {
 }
 
 void MatchingEngine::runMarketDistributor() {
-    distributor.Start();
+    distributor.start();
 }
 
 
 void MatchingEngine::runOrderBook(size_t idx) {
     orderBooks[idx]->run();
+}
+
+void MatchingEngine::runPersistenceLogger() {
+    logger.start();
 }
