@@ -26,12 +26,11 @@ private:
 
     // queues to communicate between kafka consumer and order book threads
     std::vector<std::unique_ptr<SafeQueue<std::shared_ptr<Order>>>> orderQueues;
-    //SafeQueue<Event> persistQueue;
+    SafeQueue<LogEvent> persistQueue;
     SafeQueue<DisseminationEvent> distQueue;
 
     std::thread kafkaThread;
     std::vector<std::thread> bookThreads;
-    //std::thread loggerThread;
 
     boost::asio::io_context ioContext;
     Distributor distributor;

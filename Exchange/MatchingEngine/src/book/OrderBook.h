@@ -10,7 +10,7 @@
 
 class OrderBook {
 public:
-    OrderBook(const std::string& ticker, SafeQueue<std::shared_ptr<Order>>& inQueue, SafeQueue<DisseminationEvent>& disseminationQueue);
+    OrderBook(const std::string ticker, SafeQueue<std::shared_ptr<Order>>& inQueue, SafeQueue<DisseminationEvent>& disseminationQueue);
     void run();
     bool placeOrder(const std::shared_ptr<Order>& order);
     bool cancelOrderLazy(const std::shared_ptr<Order>& order);
@@ -30,7 +30,6 @@ public:
             return !(*lhs < *rhs);
         }
     };
-    // default max heap - makes sense for buys
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, OrderCompare> bids;
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order>>, OrderCompareReverse> asks;
     std::vector<std::shared_ptr<Order>> orders;
@@ -38,7 +37,7 @@ public:
     std::unordered_map<Price, Volume> aggregatedAsks;
 
 private:
-    const std::string& ticker;
+    const std::string ticker;
     SafeQueue<std::shared_ptr<Order>>& inQueue;
     SafeQueue<DisseminationEvent>& disseminationQueue;
 
@@ -55,5 +54,24 @@ private:
     Price lastBestAskPrice = -1;
     Volume lastBestAskSize  = 0;
 
+    void touchLevel(Price p) {
+        if (touchedLevels.empty() || touchedLevels.back() != p)
+            touchedLevels.push_back(p);
+    }
+
+    void afterMatch(Volume matched) {
+        emitTradeEvent(matched);
+        maybeEmitLevel1();
+    }
+
+    void restLimitAsk(Price p, Volume vol) {
+        touchLevel(p);
+        aggregatedAsks[p] += vol;
+    }
+
+    void restLimitBuy(Price p, Volume vol) {
+        touchLevel(p);
+        aggregatedBids[p] += vol;
+    }
 };
 #endif //ORDERBOOK_H

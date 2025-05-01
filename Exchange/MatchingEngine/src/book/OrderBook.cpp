@@ -1,7 +1,6 @@
 #include "OrderBook.h"
-#include <iostream>
 
-OrderBook::OrderBook(const std::string& ticker,
+OrderBook::OrderBook(const std::string ticker,
                      SafeQueue<std::shared_ptr<Order>>& inQueue,
                      SafeQueue<DisseminationEvent> &disseminationQueue)
         :   ticker(ticker),
@@ -27,7 +26,6 @@ bool OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
     else                                throw std::logic_error("Invalid order type");
     emitLevel2UpdateBatch();
     return result;
-
 }
 
 bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
@@ -41,10 +39,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         if (order->getOrderType() == LIMIT && topBid->getPrice() < order->getPrice()) {
             break;
         }
-        { Price lvl = topBid->getPrice();
-                      if (touchedLevels.empty() || touchedLevels.back() != lvl)
-                             touchedLevels.push_back(lvl);
-                    }
+        touchLevel(topBid->getPrice());
         Volume matchedVolume = std::min(order->getRemainingVolume(), topBid->getRemainingVolume());
         aggregatedBids.at(topBid->getPrice()) -= matchedVolume;
         lastPrice = topBid->getPrice();
@@ -52,8 +47,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topBid->setFilledVolume(topBid->getFilledVolume() + matchedVolume);
 
-        emitTradeEvent(matchedVolume);
-        maybeEmitLevel1();
+        afterMatch(matchedVolume);
 
         if (topBid->getRemainingVolume() == 0) {
             bids.pop();
@@ -62,15 +56,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
 
     if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         asks.push(order);
-        {
-            Price p = order->getPrice();
-            touchedLevels.push_back(p);
-        }
-
-        if (!aggregatedAsks.contains(order->getPrice())) {
-            aggregatedAsks[order->getPrice()] = order->getRemainingVolume();
-        }
-        else aggregatedAsks[order->getPrice()] += order->getRemainingVolume();
+        restLimitAsk(order->getPrice(), order->getRemainingVolume());
         return true;
     }
     // Not enough liquidity to fulfill Market order
@@ -91,18 +77,14 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
         if (order->getOrderType() == LIMIT && topAsk->getPrice() > order->getPrice()) {
             break;
         }
-        { Price lvl = topAsk->getPrice();
-                      if (touchedLevels.empty() || touchedLevels.back() != lvl)
-                            touchedLevels.push_back(lvl);
-                    }
+        touchLevel(topAsk->getPrice());
         Volume matchedVolume = std::min(order->getRemainingVolume(), topAsk->getRemainingVolume());
         lastPrice = topAsk->getPrice();
         aggregatedAsks[topAsk->getPrice()] -= matchedVolume;
         order->setFilledVolume(order->getFilledVolume() + matchedVolume);
         topAsk->setFilledVolume(topAsk->getFilledVolume() + matchedVolume);
 
-        emitTradeEvent(matchedVolume);
-        maybeEmitLevel1();
+       afterMatch(matchedVolume);
 
         if (topAsk->getRemainingVolume() == 0) {
             asks.pop();
@@ -110,14 +92,7 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
     }
     if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         bids.push(order);
-        {
-            Price p = order->getPrice();
-            touchedLevels.push_back(p);
-        }
-        if (!aggregatedBids.contains(order->getPrice())) {
-            aggregatedBids[order->getPrice()] = order->getRemainingVolume();
-        }
-        else aggregatedBids[order->getPrice()] += order->getRemainingVolume();
+        restLimitBuy(order->getPrice(), order->getRemainingVolume());
         return true;
     }
     // Not enough liquidity to fulfill Market order
@@ -178,7 +153,6 @@ void OrderBook::maybeEmitLevel1() {
 void OrderBook::emitLevel2UpdateBatch() {
     if (touchedLevels.empty()) return;
 
-    // Build one L2 message with all changed levels
     std::vector<std::pair<Price,Volume>> depth;
     depth.reserve(touchedLevels.size());
     for (Price p : touchedLevels) {

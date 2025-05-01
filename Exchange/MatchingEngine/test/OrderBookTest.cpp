@@ -11,9 +11,6 @@ namespace {
     }
 }
 
-
-
-
 // Highest bids on the top is expected
 TEST(OrderBookTest, MultipleBids) {
     auto orderBook = makeTestOrderBook();
