@@ -13,9 +13,6 @@ int main()
             30001                       // multicastPort
         };
 
-    // 2) Construct and start
     MatchingEngine engine(cfg);
     engine.start();
-    std::this_thread::sleep_for(std::chrono::seconds(1000));
-    engine.stop();
 }

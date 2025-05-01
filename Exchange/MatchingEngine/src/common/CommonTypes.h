@@ -7,6 +7,6 @@
 
 using Price = double;
 using Volume = uint64_t;
-using OrderId = uint64_t;
+using UserId = uint32_t;
 #endif //COMMONTYPES_H
 

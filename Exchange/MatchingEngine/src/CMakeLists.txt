@@ -16,6 +16,8 @@ add_executable(MatchingEngine main.cpp
         io/logging/Logger.h
         io/logging/LogEvent.h
         common/Utils.h
+        io/kafka/reading/KafkaReader.cpp
+        io/kafka/reading/KafkaReader.h
 )
 
 target_link_libraries(MatchingEngine

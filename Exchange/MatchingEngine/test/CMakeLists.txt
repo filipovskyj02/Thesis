@@ -9,6 +9,7 @@ add_library(GTest::GTest INTERFACE IMPORTED)
 add_executable(
         OrderBookTest
         OrderBookTest.cpp
+        KafkaParserTest.cpp
 )
 target_link_libraries(
         OrderBookTest

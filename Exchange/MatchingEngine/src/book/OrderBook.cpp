@@ -15,7 +15,9 @@ OrderBook::OrderBook(const std::string ticker,
 void OrderBook::run() {
     while (true) {
         auto optOrder = inQueue.pop();
-        if (!optOrder) break;
+        if (!optOrder) {
+            break;
+        }
 
         auto& order = optOrder.value();
         placeOrder(order);
@@ -63,6 +65,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
     if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         asks.push(order);
         restLimitAsk(order->getPrice(), order->getRemainingVolume());
+        logEvent(order);
         return true;
     }
     // Not enough liquidity to fulfill Market order
@@ -100,6 +103,7 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
     if (order->getOrderType() == LIMIT && order->getRemainingVolume() > 0) {
         bids.push(order);
         restLimitBuy(order->getPrice(), order->getRemainingVolume());
+        logEvent(order);
         return true;
     }
     // Not enough liquidity to fulfill Market order
@@ -114,10 +118,6 @@ bool OrderBook::cancelOrderLazy(const std::shared_ptr<Order>& order) {
     if (order->getOrderType() == MARKET || order->getRemainingVolume() == 0) return false;
     order->setCanceled(true);
     return true;
-}
-std::shared_ptr<Order>& OrderBook::getOrder(OrderId id) {
-    if (id >= orders.size()) {throw std::out_of_range("Invalid order id");}
-    return orders[id];
 }
 
 void OrderBook::emitTradeEvent(Volume matchedVolume) {

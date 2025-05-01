@@ -21,8 +21,6 @@ public:
 
     bool cancelOrderLazy(const std::shared_ptr<Order> &order);
 
-    std::shared_ptr<Order> &getOrder(OrderId id);
-
     Price lastPrice = 0;
 
     struct OrderCompare {
@@ -42,7 +40,7 @@ public:
 
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order> >, OrderCompare> bids;
     std::priority_queue<std::shared_ptr<Order>, std::vector<std::shared_ptr<Order> >, OrderCompareReverse> asks;
-    std::vector<std::shared_ptr<Order> > orders;
+    std::unordered_map<std::string, std::shared_ptr<Order>> orders;
     std::unordered_map<Price, Volume> aggregatedBids;
     std::unordered_map<Price, Volume> aggregatedAsks;
 
@@ -53,7 +51,7 @@ private:
     SafeQueue<LogEvent> &logQueue;
 
 
-    void storeOrder(const std::shared_ptr<Order> &order) { orders.emplace_back(order); }
+    void storeOrder(const std::shared_ptr<Order> &order) { orders.insert({order->getId(), order}); }
 
     bool executeSell(const std::shared_ptr<Order> &order);
 

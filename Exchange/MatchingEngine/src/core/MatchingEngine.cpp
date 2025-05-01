@@ -11,7 +11,11 @@ MatchingEngine::MatchingEngine(EngineConfig cfg)
                 config.multicastPort,
                 distQueue),
     logger(config.logDirectory,
-           persistQueue)
+           persistQueue),
+    kafkaReader(orderQueues,
+        tickerToIndex,
+        config.kafkaBroker,
+        config.kafkaTopic)
 {
     orderQueues.reserve(config.tickers.size());
 }
@@ -23,28 +27,23 @@ MatchingEngine::~MatchingEngine() {
 void MatchingEngine::start() {
     runMarketDistributor();
     runPersistenceLogger();
-    kafkaThread = std::thread(&MatchingEngine::runKafkaConsumer, this);
 
     for (size_t i = 0; i < config.tickers.size(); ++i) {
         orderQueues.emplace_back(
             std::make_unique<SafeQueue<std::shared_ptr<Order>>>()
         );
     }
-
     for (size_t i = 0; i < config.tickers.size(); ++i) {
+        tickerToIndex[config.tickers[i]] = i;
         orderBooks.emplace_back(std::make_unique<OrderBook>(config.tickers[i], *orderQueues[i], distQueue, persistQueue));
-    }
-    // one thread per ticker
-    for (size_t i = 0; i < config.tickers.size(); ++i) {
         bookThreads.emplace_back(&MatchingEngine::runOrderBook, this, i);
     }
+
+    runKafkaConsumer();
 
 }
 
 void MatchingEngine::stop() {
-    if (kafkaThread.joinable())
-        kafkaThread.join();
-
     for (auto& q : orderQueues) {
         q->close();
     }
@@ -54,7 +53,7 @@ void MatchingEngine::stop() {
             t.join();
         }
     }
-
+    kafkaReader.stop();
     distQueue.close();
     distributor.stop();
     logger.stop();
@@ -62,54 +61,7 @@ void MatchingEngine::stop() {
 }
 
 void MatchingEngine::runKafkaConsumer() {
-    std::string path = "../../../../Benchmarking/DataGen/outputs/100000-50000-0.670000-0-01-05-2025 16-09-32.txt";  // add this to EngineConfig
-    std::ifstream inputFile(path);
-    if (!inputFile.is_open()) {
-        throw std::runtime_error("Cannot open data file: " + path);
-    }
-
-    int initialCount, ordersCount;
-    inputFile >> initialCount >> ordersCount;
-
-    for (int i = 0; i < initialCount; ++i) {
-        OrderId  id;     std::string side, type;
-        Price    price;  Volume vol;
-        inputFile >> id >> side >> type >> price >> vol;
-
-        auto order = std::make_shared<Order>(
-            convertSide(side),
-            convertType(type),
-            price,
-            vol
-        );
-        orderQueues[rand() % config.tickers.size()]->push(order);
-    }
-
-    for (int i = 0; i < ordersCount; ++i) {
-        OrderId  id;     std::string side, type;
-        Price    price;  Volume vol;
-        inputFile >> id >> side >> type >> price >> vol;
-            std::shared_ptr<Order> order;
-            if (type == "MARKET") {
-                order = std::make_shared<Order>(
-                    convertSide(side),
-                    convertType(type),
-                    vol
-                );
-            } else {
-                order = std::make_shared<Order>(
-                    convertSide(side),
-                    convertType(type),
-                    price,
-                    vol
-                );
-            }
-            orderQueues[rand() % config.tickers.size() ]->push(order);
-
-    }
-
-    inputFile.close();
-    for (auto& q : orderQueues) q->close();
+   kafkaReader.start();
 }
 
 void MatchingEngine::runMarketDistributor() {

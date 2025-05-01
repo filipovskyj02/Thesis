@@ -7,6 +7,7 @@
 #include "../io/dissemination/DisseminationEvent.h"
 #include "../book/OrderBook.h"
 #include "../io/dissemination/Distributor.h"
+#include "../io/kafka/reading/KafkaReader.h"
 #include "../io/logging/Logger.h"
 #include "../io/logging/LogEvent.h"
 
@@ -29,15 +30,17 @@ private:
 
     // queues to communicate between kafka consumer and order book threads
     std::vector<std::unique_ptr<SafeQueue<std::shared_ptr<Order>>>> orderQueues;
+    std::unordered_map<std::string, size_t> tickerToIndex;
+
     SafeQueue<LogEvent> persistQueue;
     SafeQueue<DisseminationEvent> distQueue;
 
-    std::thread kafkaThread;
     std::vector<std::thread> bookThreads;
 
     boost::asio::io_context ioContext;
     Distributor distributor;
     Logger logger;
+    KafkaReader kafkaReader;
 
     void runKafkaConsumer();
     void runOrderBook(size_t idx);

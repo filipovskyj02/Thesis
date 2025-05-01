@@ -56,7 +56,7 @@ void Logger::run() {
             it = ins;
         }
         auto& ofs = it->second;
-        ofs << e << '\n';
+        ofs << e << std::endl;
     }
 
     // Close all file streams

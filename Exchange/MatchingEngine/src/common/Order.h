@@ -1,6 +1,8 @@
 #pragma once
 
 #include <chrono>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "SideEnum.h"
 #include "CommonTypes.h"
@@ -18,44 +20,123 @@ inline const char* toString(OrderType t) noexcept {
 }
 
 class Order {
+    const std::string id;
+    const UserId userId;
+    long long timestamp;
+    const Side side;
+    const OrderType orderType;
+    Price price;
+    Volume volume;
+    const std::string cancelTarget;
+
+    Volume filledVolume = 0;
+    bool canceled = false;
 public:
-    Order(Side side, OrderType orderType, Price price, Volume volume)
-       : id(generateId()), side(side), orderType(orderType), price(price), volume(volume) {
-        timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
-                        std::chrono::system_clock::now().time_since_epoch()).count();
-        filledVolume = 0;
-        canceled = false;
+    // Limit
+    Order(std::string id,
+         UserId userId,
+         long long timestamp,
+         Side side,
+         OrderType orderType,
+         Price price,
+         Volume volume)
+     : id(std::move(id))
+     , userId(userId)
+     , timestamp(timestamp)
+     , side(side)
+     , orderType(orderType)
+     , price(price)
+     , volume(volume) {}
 
-    }
+    // Market
+    Order(std::string id,
+          UserId userId,
+          long long timestamp,
+          Side side,
+          OrderType orderType,
+          Volume volume)
+      : id(std::move(id))
+      , userId(userId)
+      , timestamp(timestamp)
+      , side(side)
+      , orderType(orderType)
+      , price(0)
+      , volume(volume)
+    {}
 
-    Order(Side side, OrderType orderType, Volume volume) : id(generateId()), side(side), orderType(orderType), volume(volume) {
-        timestamp = std::chrono::duration_cast<std::chrono::microseconds>(
-                       std::chrono::system_clock::now().time_since_epoch()).count();
-        price = 0;
-        filledVolume = 0;
-        canceled = false;
-    }
-    int getId() const { return id; }
-    OrderType getOrderType() const { return orderType; }
+    // 3) Cancel
+    Order(std::string id,
+          UserId userId,
+          long long timestamp,
+          std::string cancelTargetOrderId)
+      : id(std::move(id))
+      , userId(userId)
+      , timestamp(timestamp)
+      , side(Side::BUY)
+      , orderType(OrderType::CANCEL)
+      , price(0)
+      , volume(0)
+      , cancelTarget(std::move(cancelTargetOrderId))
+    {}
+
+    // 4) fully explicit
+    Order(std::string id,
+          UserId userId,
+          long long timestamp,
+          Side side,
+          OrderType orderType,
+          Price price,
+          Volume volume,
+          std::string cancelTargetOrderId)
+      : id(std::move(id))
+      , userId(userId)
+      , timestamp(timestamp)
+      , side(side)
+      , orderType(orderType)
+      , price(price)
+      , volume(volume)
+      , cancelTarget(std::move(cancelTargetOrderId))
+    {}
+    //─────────────────────────────────────────────────────────────────────────
+    // For tests
+    Order(Side side_,
+          OrderType type_,
+          Price price_,
+          Volume volume_)
+      : id(generateId())
+      , userId(0)
+      , timestamp(0)
+      , side(side_)
+      , orderType(type_)
+      , price(price_)
+      , volume(volume_)
+    {}
+
+    Order(Side side_,
+          OrderType type_,
+          Volume volume_)
+      : id(generateId())
+      , userId(0)
+      , timestamp(0)
+      , side(side_)
+      , orderType(type_)
+      , price(0)
+      , volume(volume_)
+    {}
+    std::string getId() const { return id; }
+    UserId getUserId() const { return userId; }
     Side getSide() const { return side; }
-
-    double getPrice() const { return price; }
-    void setPrice(double newPrice) { price = newPrice; }
+    OrderType getOrderType() const { return orderType; }
+    Price getPrice() const { return price; }
+    long long getTimestamp() const { return timestamp; }
+    const std::string& getCancelTarget() const { return cancelTarget; }
 
     Volume getFilledVolume() const { return filledVolume; }
     void setFilledVolume(Volume newVolume) { filledVolume = newVolume; }
-
     Volume getRemainingVolume() const { return volume - filledVolume; }
-
     Volume getOriginalVolume() const { return volume ; }
-
-    long getTimestamp() const { return timestamp; }
-    void setTimestamp(long newTimestamp) { timestamp = newTimestamp; }
-
     bool isCanceled() const { return canceled; }
     void setCanceled(const bool newCanceled) { canceled = newCanceled; }
-
-
 
     bool operator<(const Order& other) const {
         if (this->price == other.price) {
@@ -76,19 +157,9 @@ public:
         return os;
     }
 private:
-    const OrderId id;
-    const Side side;
-    const OrderType orderType;
-    Price price;
-    Volume volume;
-    Volume filledVolume;
-    long long timestamp;
-    bool canceled;
 
-
-    static int generateId() {
-        static int currentId = 0;
-        return currentId++;
+    static std::string generateId() {
+        return to_string(boost::uuids::random_generator()());
     }
 
 };
