@@ -42,16 +42,17 @@ void KafkaReader::run() {
                 // log or smth
                 continue;
             }
+            //std::cout << "recieved message in core matching engine: " << record.value().toString() << std::endl;
             auto res = parseRecord(record.value().toString());
-            if (res.first.empty() or !res.second) {
-                // Log or smth
+            if (res.first.empty() or !res.second)    {
+                std::cout << "Failed to parse order" << std::endl;
                 continue;
             }
             if (tickerToIndex.contains(res.first)) {
                 orderQueues[tickerToIndex.at(res.first)]->push(res.second);
             }
             else {
-                // bad ticker
+                std::cout << "Invalid ticker" << std::endl;
             }
         }
     }

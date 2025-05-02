@@ -1,39 +1,37 @@
 #include <iostream>
-#include "kafka/KafkaProducer.h"
+#include "kafka/OrderSender.h"
+#include <utility>
+#include "crow.h"
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
+
+#include "service/OrderService.h"
 
 
 int main() {
-    using namespace kafka;
-    using namespace kafka::clients::producer;
+    crow::SimpleApp app;
 
-    const std::string brokers = "localhost:9092";
-    const Properties props({{"bootstrap.servers", brokers}});
-    // Create a producer
-    KafkaProducer producer(props);
+    OrderSender sender("orders");
+    OrderService service(sender);
 
-    // Prepare a message
-    std::string line= "1,10,AAPL,ord1,1618886400,1,123.45,1,\n";
+    CROW_ROUTE(app, "/order/limit").methods("POST"_method)
+        ([&service](const crow::request& req) {
+            return service.processLimit(req);
+        });
 
-    ProducerRecord record("orders", NullKey, Value(line.c_str(), line.size()));
+    CROW_ROUTE(app, "/order/market").methods("POST"_method)
+        ([&service](const crow::request& req) {
+            return service.processMarket(req);
+        });
 
-    // Prepare delivery callback
-    auto deliveryCb = [](const RecordMetadata& metadata, const Error& error) {
-        if (!error) {
-            std::cout << "Message delivered: " << metadata.toString() << std::endl;
-        } else {
-            std::cerr << "Message failed to be delivered: " << error.message() << std::endl;
-        }
-    };
+    CROW_ROUTE(app, "/order/cancel").methods("POST"_method)
+        ([&service](const crow::request& req) {
+            return service.processCancel(req);
+        });
 
-    for (int i = 1; i <= 1900000; i++) {
-        producer.send(record, deliveryCb);
-
-    }
-
-    // Close the producer explicitly(or not, since RAII will take care of it)
-    producer.close();
+    app.bindaddr("0.0.0.0")
+        .port(8080)
+        .multithreaded()
+        .run();
 }
+

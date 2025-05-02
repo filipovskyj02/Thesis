@@ -5,12 +5,12 @@
 int main()
 {
     const EngineConfig cfg{
-            {"AAPL", "GOOG"},           // tickers
+            {"AAPL", "GOOG"},       // tickers
             "localhost:9092",           // kafkaBroker
             "orders",                   // kafkaTopic
-            "./logs",                   // logDirectory (unused for now)
+            "./logs",                   // logDirectory
             "239.255.0.1",              // multicastAddress
-            30001                       // multicastPort
+            30001                         // multicastPort
         };
 
     MatchingEngine engine(cfg);

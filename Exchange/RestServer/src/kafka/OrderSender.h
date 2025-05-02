@@ -1,0 +1,29 @@
+#ifndef KAFKAPRODUCER_H
+#define KAFKAPRODUCER_H
+
+#include "kafka/KafkaProducer.h"
+
+
+class OrderSender {
+public:
+    explicit OrderSender(std::string topic);
+    ~OrderSender();
+    void enqueueAsync(std::string order);
+private:
+    const std::string topic;
+    kafka::clients::producer::KafkaProducer producer;
+
+    std::function<void(const kafka::clients::producer::RecordMetadata&,
+                     const kafka::Error&)> defaultCb;
+
+    static kafka::clients::producer::KafkaProducer makeProducer() {
+        kafka::Properties p;
+        p.put("bootstrap.servers",  "localhost:9092");
+        p.put("enable.idempotence", "true");
+        return kafka::clients::producer::KafkaProducer(p);
+    }
+};
+
+
+
+#endif //KAFKAPRODUCER_H
