@@ -1,7 +1,7 @@
 import http from 'k6/http';
 
 export const options = {
-  iterations: 100000,
+  iterations: 1000000,
   vus: 10,
 };
 

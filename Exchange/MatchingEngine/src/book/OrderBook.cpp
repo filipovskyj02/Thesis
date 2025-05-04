@@ -28,7 +28,8 @@ bool OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
     storeOrder(order);
     touchedLevels.clear();
     bool result;
-    if (order->getSide() == SELL)      result = executeSell(order);
+    if (order->getOrderType() == CANCEL) result = cancelOrderLazy(order);
+    else if (order->getSide() == SELL)      result = executeSell(order);
     else if (order->getSide() == BUY)  result = executeBuy(order);
     else                                throw std::logic_error("Invalid order type");
     emitLevel2UpdateBatch();
@@ -40,7 +41,7 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
         while (!bids.empty() && bids.top()->isCanceled()) {
             bids.pop();
         }
-        if (bids.empty()) break;;
+        if (bids.empty()) break;
         std::shared_ptr<Order> topBid = bids.top();
 
         if (order->getOrderType() == LIMIT && topBid->getPrice() < order->getPrice()) {
@@ -117,6 +118,8 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
 bool OrderBook::cancelOrderLazy(const std::shared_ptr<Order>& order) {
     if (order->getOrderType() == MARKET || order->getRemainingVolume() == 0) return false;
     order->setCanceled(true);
+    if (order->getSide() == BUY) aggregatedBids[order->getPrice()] -= order->getRemainingVolume();
+    if (order->getSide() == SELL) aggregatedAsks[order->getPrice()] -= order->getRemainingVolume();
     return true;
 }
 
