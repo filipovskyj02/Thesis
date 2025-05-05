@@ -28,8 +28,7 @@ inline long long nowEpochMs() {
            ).count();
 }
 
-inline std::optional<LimitOrderReq>
-parseLimitCsv(const std::vector<std::string>& f, int32_t userId) {
+inline std::optional<LimitOrderReq> parseLimitCsv(const std::vector<std::string>& f, int32_t userId) {
     if (f.size() != 5) return std::nullopt;
     const auto& ticker = f[1];
     int side;
@@ -53,8 +52,7 @@ parseLimitCsv(const std::vector<std::string>& f, int32_t userId) {
       };
 }
 
-inline std::optional<MarketOrderReq>
-parseMarketCsv(const std::vector<std::string>& f, int32_t userId) {
+inline std::optional<MarketOrderReq> parseMarketCsv(const std::vector<std::string>& f, int32_t userId) {
     if (f.size() != 4) return std::nullopt;
     const auto& ticker = f[1];
     int side;
@@ -75,8 +73,7 @@ parseMarketCsv(const std::vector<std::string>& f, int32_t userId) {
       };
 }
 
-inline std::optional<CancelOrderReq>
-parseCancelCsv(const std::vector<std::string>& f, int32_t userId) {
+inline std::optional<CancelOrderReq> parseCancelCsv(const std::vector<std::string>& f, int32_t userId) {
     if (f.size() != 3) return std::nullopt;
     const auto& ticker        = f[1];
     const auto& cancelTarget  = f[2];

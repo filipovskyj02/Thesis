@@ -8,7 +8,8 @@
 struct EngineConfig {
     std::vector<std::string> tickers;
     std::string kafkaBroker;
-    std::string kafkaTopic;
+    std::string kafkaTopicInOrders;
+    std::string kafkaTopicOutNotifications;
     std::string logDirectory;
     std::string multicastAddress;
     uint16_t multicastPort;

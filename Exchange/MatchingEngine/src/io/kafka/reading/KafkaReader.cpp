@@ -1,8 +1,10 @@
 #include "KafkaReader.h"
 #include <kafka/KafkaConsumer.h>
 #include "../src/common/Utils.h"
+
 using namespace kafka;
 using namespace kafka::clients::consumer;
+
 KafkaReader::KafkaReader(std::vector<std::unique_ptr<SafeQueue<std::shared_ptr<Order>>>> &orderQueues,
                          std::unordered_map<std::string, size_t>& tickerToIndex,
                          std::string kafkaBroker,

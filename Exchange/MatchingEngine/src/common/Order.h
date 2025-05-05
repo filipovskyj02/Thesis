@@ -97,31 +97,43 @@ public:
       , volume(volume)
       , cancelTarget(std::move(cancelTargetOrderId))
     {}
+
     //─────────────────────────────────────────────────────────────────────────
     // For tests
-    Order(Side side_,
-          OrderType type_,
-          Price price_,
-          Volume volume_)
+    Order(Side side,
+          OrderType type,
+          Price price,
+          Volume volume)
       : id(generateId())
       , userId(0)
       , timestamp(0)
-      , side(side_)
-      , orderType(type_)
-      , price(price_)
-      , volume(volume_)
+      , side(side)
+      , orderType(type)
+      , price(price)
+      , volume(volume)
     {}
 
-    Order(Side side_,
-          OrderType type_,
-          Volume volume_)
+    Order(Side side,
+          OrderType type,
+          Volume volume)
       : id(generateId())
       , userId(0)
       , timestamp(0)
-      , side(side_)
-      , orderType(type_)
+      , side(side)
+      , orderType(type)
       , price(0)
-      , volume(volume_)
+      , volume(volume)
+    {}
+
+    Order(std::string targetId)
+      : id(generateId())
+      , userId(0)
+      , timestamp(0)
+      , side(BUY)
+      , orderType(CANCEL)
+      , price(0)
+      , volume(0)
+      , cancelTarget(targetId)
     {}
     std::string getId() const { return id; }
     UserId getUserId() const { return userId; }

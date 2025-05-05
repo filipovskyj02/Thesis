@@ -35,8 +35,8 @@ int main() {
                         boost::asio::write(s, boost::asio::buffer("ERR,auth failed\n"));
                         return;
                     }
-                    int userId_ = std::stoi(auth.substr(5));
-                    std::cout << "User ID: " << userId_ << " succesfully authed." << std::endl;
+                    int userId = std::stoi(auth.substr(5));
+                    std::cout << "User ID: " << userId << " succesfully authed." << std::endl;
                     boost::asio::write(s, boost::asio::buffer("OK,AUTH_OK\n"));
 
                     // 5b) thereafter each line is a CSV order
@@ -46,11 +46,10 @@ int main() {
                         std::getline(is, line);
                         if (line.empty()) break;
 
-                        auto reply = service.processCsvLine(line) + "\n";
+                        auto reply = service.processCsvLine(line, userId) + "\n";
                         boost::asio::write(s, boost::asio::buffer(reply));
                     }
                 } catch (...) {
-                    // connection closed or error
                 }
             }
         }.detach();

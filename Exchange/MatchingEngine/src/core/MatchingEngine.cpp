@@ -2,7 +2,6 @@
 
 #include <utility>
 #include <fstream>
-#include <sstream>
 
 MatchingEngine::MatchingEngine(EngineConfig cfg)
   : config(std::move(cfg)),
@@ -15,10 +14,11 @@ MatchingEngine::MatchingEngine(EngineConfig cfg)
     kafkaReader(orderQueues,
         tickerToIndex,
         config.kafkaBroker,
-        config.kafkaTopic)
-{
-    orderQueues.reserve(config.tickers.size());
-}
+        config.kafkaTopicInOrders),
+    kafkaWriter(notificationQueue,
+        config.kafkaBroker,
+        config.kafkaTopicOutNotifications)
+{}
 
 MatchingEngine::~MatchingEngine() {
     stop();
@@ -27,23 +27,20 @@ MatchingEngine::~MatchingEngine() {
 void MatchingEngine::start() {
     runMarketDistributor();
     runPersistenceLogger();
+    runUserNotifier();
 
     for (size_t i = 0; i < config.tickers.size(); ++i) {
-        orderQueues.emplace_back(
-            std::make_unique<SafeQueue<std::shared_ptr<Order>>>()
-        );
-    }
-    for (size_t i = 0; i < config.tickers.size(); ++i) {
+        orderQueues.emplace_back(std::make_unique<SafeQueue<std::shared_ptr<Order>>>());
         tickerToIndex[config.tickers[i]] = i;
-        orderBooks.emplace_back(std::make_unique<OrderBook>(config.tickers[i], *orderQueues[i], distQueue, persistQueue));
+        orderBooks.emplace_back(std::make_unique<OrderBook>(config.tickers[i], *orderQueues[i], distQueue, persistQueue, notificationQueue));
         bookThreads.emplace_back(&MatchingEngine::runOrderBook, this, i);
     }
 
     runKafkaConsumer();
-
 }
 
 void MatchingEngine::stop() {
+    kafkaReader.stop();
     for (auto& q : orderQueues) {
         q->close();
     }
@@ -53,11 +50,9 @@ void MatchingEngine::stop() {
             t.join();
         }
     }
-    kafkaReader.stop();
-    distQueue.close();
     distributor.stop();
     logger.stop();
-
+    kafkaWriter.stop();
 }
 
 void MatchingEngine::runKafkaConsumer() {
@@ -68,7 +63,6 @@ void MatchingEngine::runMarketDistributor() {
     distributor.start();
 }
 
-
 void MatchingEngine::runOrderBook(size_t idx) {
     orderBooks[idx]->run();
 }
@@ -76,3 +70,8 @@ void MatchingEngine::runOrderBook(size_t idx) {
 void MatchingEngine::runPersistenceLogger() {
     logger.start();
 }
+
+void MatchingEngine::runUserNotifier() {
+    kafkaWriter.start();
+}
+

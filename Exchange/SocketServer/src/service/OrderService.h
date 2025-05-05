@@ -14,16 +14,16 @@ public:
       : sender_(sender)
     {}
 
-    std::string processCsvLine(const std::string& line) {
-        auto f = splitLine(line);
-        if (f.empty()) return "ERR :bad_format\n";
+    std::string processCsvLine(const std::string& line, const int32_t userId) {
+        auto fields = splitLine(line);
+        if (fields.empty()) return "ERR :bad_format\n";
 
         try {
-            int orderType = std::stoi(f[0]);
+            int orderType = std::stoi(fields[0]);
             switch (orderType) {
-                case 1: return handleLimit(f);
-                case 2: return handleMarket(f);
-                case 3: return handleCancel(f);
+                case 1: return handleLimit(fields, userId);
+                case 2: return handleMarket(fields, userId);
+                case 3: return handleCancel(fields, userId);
                 default: return "ERR : unknown order type\n";
             }
         } catch(...) {
@@ -34,24 +34,24 @@ public:
 private:
     OrderSender& sender_;
 
-    std::string handleLimit(const std::vector<std::string>& f) {
-        auto o = parseLimitCsv(f, 1);
+    std::string handleLimit(const std::vector<std::string>& f, const int32_t userId) {
+        auto o = parseLimitCsv(f, userId);
         if (!o) return "ERR : failed to parse limit order\n";
         auto& ord = *o;
         sender_.enqueueAsync(toCsv(ord));
         return "ACK " + ord.orderId + "\n";
     }
 
-    std::string handleMarket(const std::vector<std::string>& f) {
-        auto o = parseMarketCsv(f,1);
+    std::string handleMarket(const std::vector<std::string>& f, const int32_t userId) {
+        auto o = parseMarketCsv(f,userId);
         if (!o) return "ERR : failed to parse market order\n";
         auto& ord = *o;
         sender_.enqueueAsync(toCsv(ord));
         return "ACK " + ord.orderId + "\n";
     }
 
-    std::string handleCancel(const std::vector<std::string>& f) {
-        auto o = parseCancelCsv(f,1);
+    std::string handleCancel(const std::vector<std::string>& f, const int32_t userId) {
+        auto o = parseCancelCsv(f,userId);
         if (!o) return "ERR : failed to parse cancel order\n";
         auto& ord = *o;
         sender_.enqueueAsync(toCsv(ord));

@@ -8,7 +8,8 @@ namespace {
         static SafeQueue<std::shared_ptr<Order>> dummyInQueue;
         static SafeQueue<DisseminationEvent>     dummyDisQueue;
         static SafeQueue<LogEvent>     dummyLogQueue;
-        return std::make_unique<OrderBook>("AAPL", dummyInQueue, dummyDisQueue, dummyLogQueue);
+        static SafeQueue<NotificationEvent> dummyNotificationQueue;
+        return std::make_unique<OrderBook>("AAPL", dummyInQueue, dummyDisQueue, dummyLogQueue, dummyNotificationQueue);
     }
 }
 
@@ -191,7 +192,9 @@ TEST(OrderBookTest, CanceledOrderIsNotFulfilledByLimit) {
     auto limitOrderBuy = std::make_shared<Order>(BUY, LIMIT, 100, 10);
 
     orderBook->placeOrder(limitOrderSell);
-    orderBook->cancelOrderLazy(limitOrderSell);
+
+    auto cancelOrder = std::make_shared<Order>(limitOrderSell->getId());
+    orderBook->cancelOrderLazy(cancelOrder);
 
     orderBook->placeOrder(limitOrderBuy);
 
@@ -212,7 +215,8 @@ TEST(OrderBookTest, CanceledOrderIsNotFulfilledByMarket) {
     auto marketOrderBuy = std::make_shared<Order>(BUY, MARKET, 10);
 
     orderBook->placeOrder(limitOrderSell);
-    orderBook->cancelOrderLazy(limitOrderSell);
+    auto cancelOrder = std::make_shared<Order>(limitOrderSell->getId());
+    orderBook->cancelOrderLazy(cancelOrder);
 
     EXPECT_FALSE(orderBook->placeOrder(marketOrderBuy));
 
@@ -228,8 +232,9 @@ TEST(OrderBookTest, CanceledOrderIsNotFulfilledByMarket) {
 TEST(OrderBookTest, MarketOrderIsNotCancellable) {
     auto orderBook = makeTestOrderBook();
     auto marketOrderBuy = std::make_shared<Order>(BUY, MARKET, 10);
+    auto cancelOrder = std::make_shared<Order>(marketOrderBuy->getId());
 
-    EXPECT_FALSE(orderBook->cancelOrderLazy(marketOrderBuy));
+    EXPECT_FALSE(orderBook->cancelOrderLazy(cancelOrder));
 }
 
 TEST(OrderBookTest, FulfilledOrderIsNotCancellable) {
@@ -251,10 +256,11 @@ TEST(OrderBookTest, PartiallyFulfilledOrderIsCancellable) {
 
     orderBook->placeOrder(limitSell);
     orderBook->placeOrder(limitOrderBuy);
+    auto cancelOrder = std::make_shared<Order>(limitSell->getId());
 
     EXPECT_EQ(limitOrderBuy->getRemainingVolume(), 0);
     EXPECT_EQ(limitSell->getRemainingVolume(), 30);
-    EXPECT_TRUE(orderBook->cancelOrderLazy(limitSell));
+    EXPECT_TRUE(orderBook->cancelOrderLazy(cancelOrder));
 }
 
 TEST(OrderBookTest, AggregateVolumeBuy) {

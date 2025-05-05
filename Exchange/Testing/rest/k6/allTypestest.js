@@ -28,7 +28,7 @@ export default function () {
     // LIMIT
     const ticker = randomItem(tickers);
     const payload = JSON.stringify({
-      userId:  123,
+      userId:  randomIntBetween(1,1000),
       ticker:  ticker,
       side:    Math.random() < 0.5 ? 0 : 1,
       price:   100 + Math.random() * 50,

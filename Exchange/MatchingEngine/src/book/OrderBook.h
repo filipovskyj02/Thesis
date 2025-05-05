@@ -7,13 +7,15 @@
 #include "../common/SafeQueue.h"
 #include "../io/dissemination/DisseminationEvent.h"
 #include "../common/Order.h"
+#include "../io/kafka/writing/NotificationEvent.h"
 #include "../io/logging/LogEvent.h"
 
 class OrderBook {
 public:
     OrderBook(const std::string ticker, SafeQueue<std::shared_ptr<Order> > &inQueue,
               SafeQueue<DisseminationEvent> &disseminationQueue,
-              SafeQueue<LogEvent> &logQueue);
+              SafeQueue<LogEvent> &logQueue,
+              SafeQueue<NotificationEvent> &notificationQueue);
 
     void run();
 
@@ -49,6 +51,7 @@ private:
     SafeQueue<std::shared_ptr<Order> > &inQueue;
     SafeQueue<DisseminationEvent> &disseminationQueue;
     SafeQueue<LogEvent> &logQueue;
+    SafeQueue<NotificationEvent> &notificationQueue;
 
 
     void storeOrder(const std::shared_ptr<Order> &order) { orders.insert({order->getId(), order}); }
@@ -66,6 +69,13 @@ private:
     void emitLevel2UpdateBatch();
 
     void logEvent(const std::shared_ptr<Order>& order);
+
+    void emitPlacedNotification(const std::shared_ptr<Order>& order);
+    void emitPartialNotification(const std::shared_ptr<Order>& order,
+                                 Volume matchedVolume);
+    void emitFilledNotification(const std::shared_ptr<Order>& order);
+    void emitCanceledNotification(const std::shared_ptr<Order>& targetOrder);
+
 
     Price lastBestBidPrice = -1;
     Volume lastBestBidSize = 0;

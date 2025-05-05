@@ -18,6 +18,9 @@ add_executable(MatchingEngine main.cpp
         common/Utils.h
         io/kafka/reading/KafkaReader.cpp
         io/kafka/reading/KafkaReader.h
+        io/kafka/writing/KafkaWriter.cpp
+        io/kafka/writing/KafkaWriter.h
+        io/kafka/writing/NotificationEvent.h
 )
 
 target_link_libraries(MatchingEngine

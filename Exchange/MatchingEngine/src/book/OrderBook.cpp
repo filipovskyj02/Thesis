@@ -5,11 +5,13 @@
 OrderBook::OrderBook(const std::string ticker,
                      SafeQueue<std::shared_ptr<Order>>& inQueue,
                      SafeQueue<DisseminationEvent> &disseminationQueue,
-                     SafeQueue<LogEvent> &logQueue)
+                     SafeQueue<LogEvent> &logQueue,
+                     SafeQueue<NotificationEvent> &notificationQueue)
         :   ticker(ticker),
             inQueue(inQueue),
             disseminationQueue(disseminationQueue),
-            logQueue(logQueue)
+            logQueue(logQueue),
+            notificationQueue(notificationQueue)
 {}
 
 void OrderBook::run() {
@@ -26,6 +28,7 @@ void OrderBook::run() {
 
 bool OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
     storeOrder(order);
+    emitPlacedNotification(order);
     touchedLevels.clear();
     bool result;
     if (order->getOrderType() == CANCEL) result = cancelOrderLazy(order);
@@ -57,6 +60,8 @@ bool OrderBook::executeSell(const std::shared_ptr<Order>& order) {
 
         afterMatch(matchedVolume);
         logEvent(order);
+        if (order->getRemainingVolume() > 0) emitPartialNotification(order, matchedVolume);
+        else emitFilledNotification(order);
 
         if (topBid->getRemainingVolume() == 0) {
             bids.pop();
@@ -96,6 +101,8 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
 
         afterMatch(matchedVolume);
         logEvent(order);
+        if (order->getRemainingVolume() > 0) emitPartialNotification(order, matchedVolume);
+        else emitFilledNotification(order);
 
         if (topAsk->getRemainingVolume() == 0) {
             asks.pop();
@@ -116,10 +123,16 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
 
 
 bool OrderBook::cancelOrderLazy(const std::shared_ptr<Order>& order) {
-    if (order->getOrderType() == MARKET || order->getRemainingVolume() == 0) return false;
-    order->setCanceled(true);
-    if (order->getSide() == BUY) aggregatedBids[order->getPrice()] -= order->getRemainingVolume();
-    if (order->getSide() == SELL) aggregatedAsks[order->getPrice()] -= order->getRemainingVolume();
+    if (order->getCancelTarget().empty() or !orders.contains(order->getCancelTarget())) return false;
+    auto targetOrder = orders.at(order->getCancelTarget());
+    if (targetOrder->getOrderType() == MARKET || targetOrder->getRemainingVolume() == 0) return false;
+
+    targetOrder->setCanceled(true);
+
+    if (targetOrder->getSide() == BUY) aggregatedBids[targetOrder->getPrice()] -= targetOrder->getRemainingVolume();
+    if (targetOrder->getSide() == SELL) aggregatedAsks[targetOrder->getPrice()] -= targetOrder->getRemainingVolume();
+
+    emitCanceledNotification(targetOrder);
     return true;
 }
 
@@ -135,9 +148,9 @@ void OrderBook::emitTradeEvent(Volume matchedVolume) {
 
 void OrderBook::maybeEmitLevel1() {
     Price bestBidP = bids.empty() ? Price(-1) : bids.top()->getPrice();
-    Volume bestBidV = bids.empty() ? 0             : bids.top()->getRemainingVolume();
+    Volume bestBidV = bids.empty() ? 0             : aggregatedBids.at(bids.top()->getPrice());
     Price bestAskP = asks.empty() ? Price(-1) : asks.top()->getPrice();
-    Volume bestAskV = asks.empty() ? 0             : asks.top()->getRemainingVolume();
+    Volume bestAskV = asks.empty() ? 0             : aggregatedAsks.at(asks.top()->getPrice());
 
     if (bestBidP!=lastBestBidPrice ||
         bestBidV!=lastBestBidSize  ||
@@ -187,3 +200,57 @@ void OrderBook::logEvent(const std::shared_ptr<Order>& order) {
         std::chrono::system_clock::now()
    });
 }
+
+void OrderBook::emitPlacedNotification(const std::shared_ptr<Order>& order) {
+    NotificationEvent evt = OrderPlaced{
+        .orderId         = order->getId(),
+        .userId          = order->getUserId(),
+        .ticker          = ticker,
+        .limitPrice      = order->getOrderType() == LIMIT
+                              ? order->getPrice()
+                              : 0,
+        .originalVolume  = order->getOriginalVolume(),
+        .timestamp       = std::chrono::system_clock::now()
+    };
+    notificationQueue.push(std::move(evt));
+}
+
+void OrderBook::emitPartialNotification(const std::shared_ptr<Order>& order,
+                                        Volume matchedVolume)
+{
+    NotificationEvent evt = OrderPartialFill{
+        .orderId          = order->getId(),
+        .userId           = order->getUserId(),
+        .ticker           = ticker,
+        .execPrice        = lastPrice,
+        .filledVolume     = matchedVolume,
+        .cumulativeFilled = order->getFilledVolume(),
+        .remaining        = order->getRemainingVolume(),
+        .timestamp        = std::chrono::system_clock::now()
+    };
+    notificationQueue.push(std::move(evt));
+}
+
+void OrderBook::emitFilledNotification(const std::shared_ptr<Order>& order) {
+    NotificationEvent evt = OrderFilled{
+        .orderId      = order->getId(),
+        .userId       = order->getUserId(),
+        .ticker       = ticker,
+        .execPrice    = lastPrice,
+        .totalVolume  = order->getOriginalVolume(),
+        .timestamp    = std::chrono::system_clock::now()
+    };
+    notificationQueue.push(std::move(evt));
+}
+
+void OrderBook::emitCanceledNotification(const std::shared_ptr<Order>& targetOrder) {
+    NotificationEvent evt = OrderCanceled{
+        .orderId           = targetOrder->getId(),
+        .userId            = targetOrder->getUserId(),
+        .ticker            = ticker,
+        .canceledRemaining = targetOrder->getRemainingVolume(),
+        .timestamp         = std::chrono::system_clock::now()
+    };
+    notificationQueue.push(std::move(evt));
+}
+
