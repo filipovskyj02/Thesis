@@ -222,6 +222,39 @@ previous (poll 100 ms)
 ✅ WebSocket latency: 51.97 ms
 
 
+TCP SOCKETS: 
+Threads  : 6
+Orders   : 1200000
+Elapsed  : 10.3976 s
+Throughput: 115411 TPS
+
+Threads  : 5
+Orders   : 1000000
+Elapsed  : 7.54666 s
+Throughput: 132509 TPS
+
+Threads  : 2
+Orders   : 400000
+Elapsed  : 5.72009 s
+Throughput: 69928 TPS
+
+Threads  : 2
+Orders   : 400000
+Elapsed  : 5.45236 s
+Throughput: 73362 TPS
+
+Threads  : 4
+Orders   : 800000
+Elapsed  : 6.79557 s
+Throughput: 117723 TPS
+
+
+
+
+
+
+
+
 
 
 
