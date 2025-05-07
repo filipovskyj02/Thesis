@@ -66,7 +66,7 @@ private:
 
     std::vector<Price> touchedLevels;
 
-    void emitLevel2UpdateBatch();
+    void emitLevel2UpdateBatch(const std::shared_ptr<Order>& order);
 
     void logEvent(const std::shared_ptr<Order>& order);
 

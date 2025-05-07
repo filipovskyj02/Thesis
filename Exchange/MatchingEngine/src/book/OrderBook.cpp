@@ -35,7 +35,7 @@ bool OrderBook::placeOrder(const std::shared_ptr<Order>& order) {
     else if (order->getSide() == SELL)      result = executeSell(order);
     else if (order->getSide() == BUY)  result = executeBuy(order);
     else                                throw std::logic_error("Invalid order type");
-    emitLevel2UpdateBatch();
+    emitLevel2UpdateBatch(order);
     return result;
 }
 
@@ -173,7 +173,7 @@ void OrderBook::maybeEmitLevel1() {
         disseminationQueue.push(DisseminationEvent{u});
     }
 }
-void OrderBook::emitLevel2UpdateBatch() {
+void OrderBook::emitLevel2UpdateBatch(const std::shared_ptr<Order>& order) {
     if (touchedLevels.empty()) return;
 
     std::vector<std::pair<Price,Volume>> depth;
@@ -188,7 +188,9 @@ void OrderBook::emitLevel2UpdateBatch() {
     Level2Update u{
         .ticker    = ticker,
         .depth     = std::move(depth),
-        .timestamp = std::chrono::system_clock::now()
+        .timestamp = std::chrono::system_clock::now(),
+        .ingestionTimestamp = order->getTimestamp(),
+        .orderCreationTimestamp = order->getCreationTimestamp()
     };
     disseminationQueue.push(DisseminationEvent{u});
 }

@@ -35,8 +35,14 @@ int main() {
         auto len = socket.receive_from(
             asio::buffer(buffer), sender
         );
+
+        auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::system_clock::now().time_since_epoch()).count();
+
         // Print raw datagram (may contain multiple lines)
+        std::cout << "curr time: " << nowMs << " ";
         std::cout.write(buffer.data(), len);
+
         std::cout.flush();
     }
 

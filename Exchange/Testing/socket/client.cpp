@@ -1,60 +1,83 @@
 #include <boost/asio.hpp>
+#include <atomic>
+#include <chrono>
 #include <iostream>
+#include <random>
 #include <string>
+#include <thread>
+#include <vector>
 
 using boost::asio::ip::tcp;
+using HiClock = std::chrono::high_resolution_clock;          // safe alias
 
-int main() {
+constexpr const char* HOST = "127.0.0.1";
+constexpr const char* PORT = "9000";
+constexpr const char* TICKERS[2] = {"AAPL", "GOOG"};
+
+
+
+void spammer(int id, int ordersPerThread)
+{
     try {
-        boost::asio::io_context io_context;
+        boost::asio::io_context io;
+        tcp::resolver  res(io);
+        tcp::socket    sock(io);
+        boost::asio::connect(sock, res.resolve(HOST, PORT));
 
-        // 1) Resolve & connect
-        tcp::resolver resolver(io_context);
-        auto endpoints = resolver.resolve("127.0.0.1", "9000");
-        tcp::socket socket(io_context);
-        boost::asio::connect(socket, endpoints);
+        // auth
+        std::string auth = "AUTH " + std::to_string(123 + id) + "\n";
+        boost::asio::write(sock, boost::asio::buffer(auth));
+        boost::asio::streambuf rb;
+        boost::asio::read_until(sock, rb, '\n');        // expect OK,AUTH_OK
 
-        // 2) AUTH handshake
-        const std::string auth_line = "AUTH 123\n";
-        boost::asio::write(socket, boost::asio::buffer(auth_line));
+        // RNG per thread
+        //std::mt19937 gen(std::random_device{}());
+        //std::uniform_int_distribution<int> pick(0, 1);
+        //std::uniform_real_distribution<>  px (100.0, 150.0);
+        //std::uniform_int_distribution<int> vol(1, 10);
 
-        // 3) Read back the AUTH_OK
-        boost::asio::streambuf auth_response;
-        boost::asio::read_until(socket, auth_response, '\n');
-        {
-          std::istream is(&auth_response);
-          std::string reply;
-          std::getline(is, reply);
-          if (reply != "OK,AUTH_OK") {
-            std::cerr << "Auth failed: " << reply << "\n";
-            return 1;
-          }
-          std::cout << "Authenticated successfully.\n";
-        }
-        const std::string order = "1,AAPL,0,120.5,1\n";
-        // 4) Now send a few example orders
-        //    (ticker,side,price,volume) or (ticker,side,volume) or (ticker,targetId)
-       //const std::vector<std::string> orders = {
-         // "1,AAPL,0,120.5,10\n",    // limit buy
-          //"2,GOOG,1,5\n",           // market sell
-          //"3,AAPL,abcd-1234-uuid\n" // cancel
-        //};
+        for (int n = 0; n < ordersPerThread; ++n) {
+            //std::string msg = "1," + std::string(TICKERS[pick(gen)]) + ',' +
+              //                std::to_string(pick(gen)) + ',' +
+                //              std::to_string(px(gen))   + ',' +
+                  //            std::to_string(vol(gen))  + '\n';
 
-        for (int i = 0; i < 100000; i++) {
-            boost::asio::write(socket, boost::asio::buffer(order));
+            std::string testMsg = "1,AAPL,0,100,1,\n";
+            boost::asio::write(sock, boost::asio::buffer(testMsg));
 
-             //read back “OK,<orderId>” or “ERR,...”
-            boost::asio::streambuf resp;
-            boost::asio::read_until(socket, resp, '\n');
-            std::istream rs(&resp);
-            std::string line;
-            std::getline(rs, line);
-            std::cout << "Server replied: " << line << "\n";
+            // read server reply to guarantee acceptance
+            rb.consume(rb.size());
+            boost::asio::read_until(sock, rb, '\n');
+
+
         }
     }
-    catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
-        return 1;
+    catch (const std::exception& ex) {
+        std::cerr << "Thread " << id << " error: " << ex.what() << '\n';
     }
-    return 0;
+}
+
+int main(int argc, char* argv[])
+{
+    int threads         = (argc > 1) ? std::atoi(argv[1]) : 8;
+    int ordersPerThread = (argc > 2) ? std::atoi(argv[2]) : 100'000;
+
+
+    std::vector<std::thread> pool;
+    auto t0 = HiClock::now();
+
+    for (int i = 0; i < threads; ++i)
+        pool.emplace_back(spammer, i, ordersPerThread);
+
+    for (auto& th : pool) th.join();
+
+    auto t1  = HiClock::now();
+    auto dur = std::chrono::duration<double>(t1 - t0).count();
+    int orderCnt = threads * ordersPerThread;
+
+    std::cout << "\nThreads  : " << threads
+              << "\nOrders   : " << orderCnt
+              << "\nElapsed  : " << dur << " s"
+              << "\nThroughput: " << static_cast<long long>(orderCnt / dur)
+              << " TPS\n";
 }

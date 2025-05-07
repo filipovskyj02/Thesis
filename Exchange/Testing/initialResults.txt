@@ -1,0 +1,234 @@
+l2 udp reciver:
+curr time: 1746558087119 L2,AAPL,150:30,1746558087119,1746558087043
+curr time: 1746558172182 L2,AAPL,150:35,1746558172182,1746558172164
+curr time: 1746558173783 L2,AAPL,150:40,1746558173783,1746558173708
+curr time: 1746558174484 L2,AAPL,150:45,1746558174484,1746558174396
+curr time: 1746558175184 L2,AAPL,150:50,1746558175184,1746558175115
+curr time: 1746558175885 L2,AAPL,150:55,1746558175885,1746558175787
+curr time: 1746558176685 L2,AAPL,150:60,1746558176685,1746558176659
+curr time: 1746558177386 L2,AAPL,150:65,1746558177386,1746558177379
+
+e2e python 
+ent orderId: 61bb8b1f-09f5-4823-8173-6ad9d4577f73
+▶ Multicast received: L2,AAPL,150:30,1746558087119,1746558087043
+▶ WebSocket received: {"orderId":"61bb8b1f-09f5-4823-8173-6ad9d4577f73","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558087119}
+✅ Multicast latency: 76.93 ms
+✅ WebSocket latency: 82.58 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 988c7b24-040b-487f-a6d3-2a844bea556c
+▶ Multicast received: L2,AAPL,150:35,1746558172182,1746558172164
+▶ WebSocket received: {"orderId":"988c7b24-040b-487f-a6d3-2a844bea556c","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558172182}
+✅ Multicast latency: 18.95 ms
+✅ WebSocket latency: 24.40 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 56f3e04e-6d9b-474f-93e7-9e399b0a7c17
+▶ Multicast received: L2,AAPL,150:40,1746558173783,1746558173708
+▶ WebSocket received: {"orderId":"56f3e04e-6d9b-474f-93e7-9e399b0a7c17","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558173783}
+✅ Multicast latency: 76.43 ms
+✅ WebSocket latency: 81.87 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 08d15330-2918-49be-98aa-8431b4e4b9e1
+▶ Multicast received: L2,AAPL,150:45,1746558174484,1746558174396
+▶ WebSocket received: {"orderId":"08d15330-2918-49be-98aa-8431b4e4b9e1","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558174484}
+✅ Multicast latency: 89.02 ms
+✅ WebSocket latency: 94.50 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 3c78d82d-11f0-4282-af54-db552a6fe342
+▶ Multicast received: L2,AAPL,150:50,1746558175184,1746558175115
+▶ WebSocket received: {"orderId":"3c78d82d-11f0-4282-af54-db552a6fe342","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558175184}
+✅ Multicast latency: 70.17 ms
+✅ WebSocket latency: 75.76 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 340070e6-8331-4ee3-9f02-f76bed6d99bc
+▶ Multicast received: L2,AAPL,150:55,1746558175885,1746558175787
+▶ WebSocket received: {"orderId":"340070e6-8331-4ee3-9f02-f76bed6d99bc","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558175885}
+✅ Multicast latency: 98.27 ms
+✅ WebSocket latency: 104.07 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: efa01b82-b11b-43ff-aa9e-a2a98ea1b82b
+▶ Multicast received: L2,AAPL,150:60,1746558176685,1746558176659
+▶ WebSocket received: {"orderId":"efa01b82-b11b-43ff-aa9e-a2a98ea1b82b","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558176685}
+✅ Multicast latency: 27.38 ms
+✅ WebSocket latency: 32.86 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 4d26c73a-2460-467e-8fcd-564515bc055b
+▶ Multicast received: L2,AAPL,150:65,1746558177386,1746558177379
+▶ WebSocket received: {"orderId":"4d26c73a-2460-467e-8fcd-564515bc055b","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746558177386}
+✅ Multicast latency: 7.71 ms
+✅ WebSocket latency: 13.25 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ 
+
+reciver time micros , engine created l2 update time micros   , server ingestion time milis
+curr time: 1746559337017656 L2,AAPL,150:5,1746559337017597,1746559337005
+curr time: 1746559351027553 L2,AAPL,150:10,1746559351027497,1746559350996
+curr time: 1746559351928221 L2,AAPL,150:15,1746559351928174,1746559351836
+curr time: 1746559352628756 L2,AAPL,150:20,1746559352628689,1746559352557
+curr time: 1746559354229978 L2,AAPL,150:25,1746559354229921,1746559354173
+curr time: 1746559355130706 L2,AAPL,150:30,1746559355130646,1746559355092
+curr time: 1746559355831240 L2,AAPL,150:35,1746559355831169,1746559355764
+
+added order object creation timestamp before ingestion timestamp
+
+curr time: 1746561083087 L2,AAPL,150:10,1746561083087,1746561083087,1746561083032
+curr time: 1746561084989 L2,AAPL,150:15,1746561084989,1746561084989,1746561084953
+curr time: 1746561085789 L2,AAPL,150:20,1746561085789,1746561085789,1746561085752
+curr time: 1746561086490 L2,AAPL,150:25,1746561086490,1746561086490,1746561086401
+
+after kafka server-engine optimalization: uba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+▶ Multicast received: L2,AAPL,150:125,1746562221194,1746562221194,1746562221194
+Sent orderId: 686515c7-dd95-4433-ae07-cb1542ec28ef
+▶ WebSocket received: {"orderId":"686515c7-dd95-4433-ae07-cb1542ec28ef","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562221194}
+✅ Multicast latency: 1.35 ms
+✅ WebSocket latency: 6.79 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: db0333a9-d084-4723-ad0d-91377c3571c5
+▶ Multicast received: L2,AAPL,150:130,1746562222473,1746562222473,1746562222473
+▶ WebSocket received: {"orderId":"db0333a9-d084-4723-ad0d-91377c3571c5","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562222473}
+✅ Multicast latency: 1.14 ms
+✅ WebSocket latency: 6.55 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 1e75f643-2568-4485-8fe9-1565bd7cb0a0
+▶ Multicast received: L2,AAPL,150:135,1746562223649,1746562223649,1746562223649
+▶ WebSocket received: {"orderId":"1e75f643-2568-4485-8fe9-1565bd7cb0a0","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562223649}
+✅ Multicast latency: 1.15 ms
+✅ WebSocket latency: 6.61 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: d0cbb570-a857-4802-97a4-285c4174286a
+▶ Multicast received: L2,AAPL,150:140,1746562224490,1746562224490,1746562224490
+▶ WebSocket received: {"orderId":"d0cbb570-a857-4802-97a4-285c4174286a","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562224490}
+✅ Multicast latency: 1.25 ms
+✅ WebSocket latency: 6.80 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 3f41bfc9-4b95-4ce2-834d-1c59e61aa99d
+▶ Multicast received: L2,AAPL,150:145,1746562225426,1746562225426,1746562225425
+▶ WebSocket received: {"orderId":"3f41bfc9-4b95-4ce2-834d-1c59e61aa99d","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562225426}
+✅ Multicast latency: 1.42 ms
+✅ WebSocket latency: 6.91 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+▶ Multicast received: L2,AAPL,150:150,1746562226306,1746562226306,1746562226306
+Sent orderId: fd926e8d-455c-4ca2-8f18-36bc7186e246
+▶ WebSocket received: {"orderId":"fd926e8d-455c-4ca2-8f18-36bc7186e246","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562226306}
+✅ Multicast latency: 1.20 ms
+✅ WebSocket latency: 6.66 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 26c70e3e-4089-4d9c-83e8-0b466cc846f4
+▶ Multicast received: L2,AAPL,150:155,1746562227259,1746562227259,1746562227258
+▶ WebSocket received: {"orderId":"26c70e3e-4089-4d9c-83e8-0b466cc846f4","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562227259}
+✅ Multicast latency: 1.57 ms
+✅ WebSocket latency: 7.06 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 81f32173-fd0e-4801-bdb3-c2b33c165894
+▶ Multicast received: L2,AAPL,150:160,1746562227930,1746562227930,1746562227930
+▶ WebSocket received: {"orderId":"81f32173-fd0e-4801-bdb3-c2b33c165894","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562227930}
+✅ Multicast latency: 1.20 ms
+✅ WebSocket latency: 6.67 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 138b687f-45c4-4c10-a2ce-b3abe68f9100
+▶ Multicast received: L2,AAPL,150:165,1746562228737,1746562228737,1746562228737
+▶ WebSocket received: {"orderId":"138b687f-45c4-4c10-a2ce-b3abe68f9100","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562228737}
+✅ Multicast latency: 1.13 ms
+✅ WebSocket latency: 6.67 ms
+
+MEASURING TIMER STARTS AFTER the rest response was recieved: Sent orderId: 7fd32ba0-7c0c-49b6-8081-b5218af99ae3
+▶ Multicast received: L2,AAPL,150:305,1746562986315,1746562986315,1746562986315
+▶ WebSocket received: {"orderId":"7fd32ba0-7c0c-49b6-8081-b5218af99ae3","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562986315}
+✅ Multicast latency: 0.05 ms
+✅ WebSocket latency: 5.67 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 1af15c2e-48a6-42da-a1a2-e1e2660322c1
+▶ Multicast received: L2,AAPL,150:310,1746562987259,1746562987259,1746562987258
+▶ WebSocket received: {"orderId":"1af15c2e-48a6-42da-a1a2-e1e2660322c1","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562987259}
+✅ Multicast latency: 0.09 ms
+✅ WebSocket latency: 5.49 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 6ce434bc-fa62-490c-866a-74bf714ce5f4
+▶ Multicast received: L2,AAPL,150:315,1746562987987,1746562987987,1746562987987
+▶ WebSocket received: {"orderId":"6ce434bc-fa62-490c-866a-74bf714ce5f4","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562987987}
+✅ Multicast latency: 0.04 ms
+✅ WebSocket latency: 5.50 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 9a548ca8-e2e8-4a39-8932-42ee0e00f27a
+▶ Multicast received: L2,AAPL,150:320,1746562989268,1746562989268,1746562989267
+▶ WebSocket received: {"orderId":"9a548ca8-e2e8-4a39-8932-42ee0e00f27a","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562989268}
+✅ Multicast latency: 0.06 ms
+✅ WebSocket latency: 5.57 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 794dbc74-3986-482a-96bd-ebc51e2f8f82
+▶ Multicast received: L2,AAPL,150:325,1746562990492,1746562990492,1746562990491
+▶ WebSocket received: {"orderId":"794dbc74-3986-482a-96bd-ebc51e2f8f82","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562990492}
+✅ Multicast latency: 0.04 ms
+✅ WebSocket latency: 5.51 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/python$ python3 ws.py 
+Sent orderId: 3d862dd3-4d8e-44a0-91e7-35f55b98efda
+▶ Multicast received: L2,AAPL,150:330,1746562996332,1746562996332,1746562996332
+▶ WebSocket received: {"orderId":"3d862dd3-4d8e-44a0-91e7-35f55b98efda","userId":123,"ticker":"AAPL","limitPrice":150.0,"originalVolume":5,"timestampMs":1746562996332}
+✅ Multicast latency: 0.08 ms
+✅ WebSocket latency: 5.63 ms
+
+1 mill
+engine poll 2 ms , server linger 2 ms : 25400.738207/s
+ HTTP
+    http_req_duration.......................................................: avg=332.16µs min=83.84µs med=269.7µs  max=20.2ms  p(90)=574.53µs p(95)=729.56µs
+      { expected_response:true }............................................: avg=332.16µs min=83.84µs med=269.7µs  max=20.2ms  p(90)=574.53µs p(95)=729.56µs
+    http_req_failed.........................................................: 0.00%   0 out of 799523
+    http_reqs...............................................................: 799523  2540
+
+✅ Multicast latency: 4.93 ms
+✅ WebSocket latency: 11.48 ms
+
+ Multicast latency: 3.50 ms
+✅ WebSocket latency: 9.02 ms
+
+✅ Multicast latency: 3.28 ms
+✅ WebSocket latency: 8.70 ms
+
+✅ Multicast latency: 3.88 ms
+✅ WebSocket latency: 9.33 ms
+
+engine poll 5ms , linger 2ms : genrally stable: 
+✅ Multicast latency: 4.38 ms
+✅ WebSocket latency: 9.85 ms
+✅ Multicast latency: 3.86 ms
+✅ WebSocket latency: 9.27 ms
+✅ Multicast latency: 5.90 ms
+✅ WebSocket latency: 11.32 ms
+100k:
+25669.21667/s
+HTTP
+    http_req_duration.......................................................: avg=327.4µs  min=91.72µs med=261.09µs max=13.89ms p(90)=563.51µs p(95)=730.19µs
+      { expected_response:true }............................................: avg=327.4µs  min=91.72µs med=261.09µs max=13.89ms p(90)=563.51µs p(95)=730.19µs
+    http_req_failed.........................................................: 0.00%  0 out of 80001
+    http_reqs...............................................................: 80001  25669.21667/s
+
+10m: 22651.324955/s
+HTTP
+    http_req_duration.......................................................: avg=379.62µs min=82.91µs med=288.97µs max=30.03ms p(90)=694.23µs p(95)=914.05µs
+      { expected_response:true }............................................: avg=379.62µs min=82.91µs med=288.97µs max=30.03ms p(90)=694.23µs p(95)=914.05µs
+    http_req_failed.........................................................: 0.00%    0 out of 7998958
+    http_reqs...............................................................: 7998958  22651.324955/s
+
+✅ Multicast latency: 4.62 ms
+✅ WebSocket latency: 10.07 ms
+ Multicast latency: 6.45 ms
+✅ WebSocket latency: 11.90 ms
+
+previous (poll 100 ms)
+26493.987497/s
+✅ Multicast latency: 94.98 ms
+✅ WebSocket latency: 100.47 ms
+✅ Multicast latency: 92.43 ms
+✅ WebSocket latency: 97.87 ms
+✅ Multicast latency: 46.44 ms
+✅ WebSocket latency: 51.97 ms
+
+
+
+
+
+
+ 
+
+
+
+
+17

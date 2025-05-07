@@ -20,6 +20,7 @@ private:
         kafka::Properties p;
         p.put("bootstrap.servers",  "localhost:9092");
         p.put("enable.idempotence", "true");
+        p.put("linger.ms",          "2");
         return kafka::clients::producer::KafkaProducer(p);
     }
 };

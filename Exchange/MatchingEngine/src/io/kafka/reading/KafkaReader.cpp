@@ -28,10 +28,10 @@ void KafkaReader::stop() {
 }
 
 void KafkaReader::run() {
-    Properties props({
-  {"bootstrap.servers", { kafkaBroker }},
-  {"group.id",           {"matching-engine-group"}},
-});
+    Properties props;
+    props.put("bootstrap.servers", kafkaBroker);
+    props.put("group.id", "matching-engine-group");
+
 
     KafkaConsumer consumer(props);
     consumer.subscribe({ kafkaTopic }, NullRebalanceCallback, std::chrono::milliseconds(300000));

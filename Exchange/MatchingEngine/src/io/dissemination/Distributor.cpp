@@ -39,6 +39,7 @@ void Distributor::run() {
 
         udp::socket socket(ioContext, udp::v4());
         socket.set_option(boost::asio::ip::multicast::hops(1));
+        socket.set_option(boost::asio::ip::multicast::enable_loopback(true));
 
         udp::endpoint endpoint(
             boost::asio::ip::make_address(multicastAddress),

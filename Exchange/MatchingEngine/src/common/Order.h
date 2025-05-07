@@ -23,6 +23,7 @@ class Order {
     const std::string id;
     const UserId userId;
     long long timestamp;
+    long long creationTimestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     const Side side;
     const OrderType orderType;
     Price price;
@@ -149,6 +150,7 @@ public:
     Volume getOriginalVolume() const { return volume ; }
     bool isCanceled() const { return canceled; }
     void setCanceled(const bool newCanceled) { canceled = newCanceled; }
+    long long getCreationTimestamp() const { return creationTimestamp; }
 
     bool operator<(const Order& other) const {
         if (this->price == other.price) {

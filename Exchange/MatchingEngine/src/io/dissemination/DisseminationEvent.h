@@ -26,6 +26,8 @@ struct Level2Update {
     std::string   ticker;
     std::vector<std::pair<Price,Volume>> depth;
     std::chrono::system_clock::time_point timestamp;
+    long long ingestionTimestamp;
+    long long orderCreationTimestamp;
 };
 
 using DisseminationEvent = std::variant<
@@ -65,7 +67,10 @@ inline std::string toString(const Level2Update& u) {
     for (auto& [price, vol] : u.depth) {
         ss << ',' << price << ':' << vol;
     }
-    ss << ',' << formatTimestamp(u.timestamp);
+    ss << ',' << std::chrono::duration_cast<
+                          std::chrono::milliseconds>(
+                          u.timestamp
+                          .time_since_epoch()).count() << "," << u.orderCreationTimestamp << "," << u.ingestionTimestamp;
     return ss.str();
 }
 
