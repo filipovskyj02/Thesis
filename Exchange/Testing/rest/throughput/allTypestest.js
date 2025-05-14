@@ -4,7 +4,7 @@ import { randomItem, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.2.0
 
 export const options = {
   vus: 10,
-  iterations: 1_000_00,
+  iterations: 1_000_0000,
 };
 
 const baseUrl = 'http://localhost:8080';
@@ -38,15 +38,12 @@ export default function () {
     const res = http.post(`${baseUrl}${endpoints.limit}`, payload, params);
     check(res, { 'limit→200': r => r.status === 200 });
 
-    if (res.status === 200 && res.headers['Content-Type'] === 'application/json') {
-      try {
-        const body = JSON.parse(res.body);
-        // response only has { orderId: "..."}
-        orderHistory.push({ orderId: body.orderId, ticker });
-      } catch (e) {
-        console.error('Invalid JSON in limit response:', res.body);
-      }
+    if (res.status === 200) {
+      const orderId = res.body.trim();
+      orderHistory.push({ orderId, ticker });
+     
     }
+
 
   } else if (r < 0.8) {
     // MARKET
@@ -61,14 +58,6 @@ export default function () {
     const res = http.post(`${baseUrl}${endpoints.market}`, payload, params);
     check(res, { 'market→200': r => r.status === 200 });
 
-    if (res.status === 200 && res.headers['Content-Type'] === 'application/json') {
-      try {
-        const body = JSON.parse(res.body);
-        orderHistory.push({ orderId: body.orderId, ticker });
-      } catch (e) {
-        console.error('Invalid JSON in market response:', res.body);
-      }
-    }
 
   } else {
     // CANCEL

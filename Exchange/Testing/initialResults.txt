@@ -249,6 +249,79 @@ Elapsed  : 6.79557 s
 Throughput: 117723 TPS
 
 
+ALL ORDER TYPES: 
+Threads   : 5
+Orders    : 500000
+Elapsed   : 4.3128 s
+Throughput: 115933 TPS
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket$ ./a.out 5
+
+Threads   : 5
+Orders    : 500000
+Elapsed   : 4.26806 s
+Throughput: 117149 TPS
+
+Threads   : 1
+Orders    : 100000
+Elapsed   : 3.05029 s
+Throughput: 32783 TPS
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket$ ./a.out 1
+
+Threads   : 1
+Orders    : 100000
+Elapsed   : 3.05177 s
+Throughput: 32767 TPS
+
+BACK TO ONE ORDER TYPE: 
+Threads   : 1
+Orders    : 100000
+Elapsed   : 2.40763 s
+Throughput: 41534 TPS
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket$ ./a.out 1 100000
+
+Threads   : 1
+Orders    : 100000
+Elapsed   : 2.41078 s
+Throughput: 41480 TPS
+
+UDP LATENCY (TIMER BEFORE REQUEST)
+Multicast received: L2,AAPL,150:85,1747184488365,1747184488365,1747184488365
+Multicast latency: 0.41123 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:90,1747184489181,1747184489181,1747184489181
+Multicast latency: 0.42818 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:95,1747184489789,1747184489789,1747184489789
+Multicast latency: 0.26783 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:100,1747184490405,1747184490405,1747184490405
+Multicast latency: 0.29713 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:105,1747184491021,1747184491021,1747184491020
+Multicast latency: 0.341561 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:110,1747184491733,1747184491733,1747184491732
+Multicast latency: 0.29203 ms
+
+UDP LATENCY(TIMER AFTER RECIEVE OK)
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:175,1747184774101,1747184774101,1747184774101
+Multicast latency: 0.204741 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:180,1747184774469,1747184774469,1747184774469
+Multicast latency: 0.18947 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:185,1747184774829,1747184774829,1747184774829
+Multicast latency: 0.20481 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:190,1747184775229,1747184775229,1747184775229
+Multicast latency: 0.186111 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:195,1747184775853,1747184775853,1747184775853
+Multicast latency: 0.20293 ms
+kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
+Multicast received: L2,AAPL,150:200,1747184776341,1747184776341,1747184776341
+Multicast latency: 0.21818 ms
 
 
 

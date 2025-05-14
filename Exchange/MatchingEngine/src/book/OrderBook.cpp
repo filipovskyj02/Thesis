@@ -1,4 +1,5 @@
 #include "OrderBook.h"
+#include <iostream>
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 
@@ -123,9 +124,17 @@ bool OrderBook::executeBuy(const std::shared_ptr<Order>& order) {
 
 
 bool OrderBook::cancelOrderLazy(const std::shared_ptr<Order>& order) {
-    if (order->getCancelTarget().empty() or !orders.contains(order->getCancelTarget())) return false;
+    if (order->getCancelTarget().empty() or !orders.contains(order->getCancelTarget())) {
+    //    std::cout << " lol " << std::endl;
+        return false;
+    }
     auto targetOrder = orders.at(order->getCancelTarget());
-    if (targetOrder->getOrderType() == MARKET || targetOrder->getRemainingVolume() == 0) return false;
+    if (targetOrder->getOrderType() == MARKET || targetOrder->getRemainingVolume() == 0) {
+       // if (targetOrder->getOrderType() == MARKET )std::cout << " lol2 " << std::endl;
+      //  if (targetOrder->getRemainingVolume() == 0 )std::cout << " lol3 " << std::endl;
+
+        return false;
+    }
 
     targetOrder->setCanceled(true);
 

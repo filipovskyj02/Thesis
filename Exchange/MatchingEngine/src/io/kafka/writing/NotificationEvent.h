@@ -2,6 +2,7 @@
 #define NOTIFICATIONEVENT_H
 #include <chrono>
 #include <string>
+#include <variant>
 
 #include "../../../common/CommonTypes.h"
 

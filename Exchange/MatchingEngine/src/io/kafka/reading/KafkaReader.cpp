@@ -34,10 +34,10 @@ void KafkaReader::run() {
 
 
     KafkaConsumer consumer(props);
-    consumer.subscribe({ kafkaTopic }, NullRebalanceCallback, std::chrono::milliseconds(300000));
+    consumer.subscribe({ kafkaTopic }, NullRebalanceCallback, std::chrono::milliseconds(30000));
 
     while (running) {
-        auto records = consumer.poll(std::chrono::milliseconds(100));
+        auto records = consumer.poll(std::chrono::milliseconds(5));
 
         for (const auto& record: records) {
             if (record.error()) {

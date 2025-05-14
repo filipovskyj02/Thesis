@@ -88,7 +88,7 @@ if __name__ == "__main__":
     
     # Wait for both notifications (or timeout)
     if not msg_received.wait(timeout=5):
-        print("❌ Did not receive both notifications in time")
+        print("Did not receive both notifications in time")
     else:
-        print(f"✅ Multicast latency: {mcast_latency*1000:.2f} ms")
-        print(f"✅ WebSocket latency: {ws_latency*1000:.2f} ms")
+        print(f"Multicast latency: {mcast_latency*1000:.2f} ms")
+        print(f"WebSocket latency: {ws_latency*1000:.2f} ms")

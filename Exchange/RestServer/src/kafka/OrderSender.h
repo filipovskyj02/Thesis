@@ -3,6 +3,10 @@
 
 #include "kafka/KafkaProducer.h"
 
+static std::string getenv_or(const char* key, const char* def) {
+    if (auto p = std::getenv(key)) return std::string(p);
+    return def;
+}
 
 class OrderSender {
 public:
@@ -18,7 +22,7 @@ private:
 
     static kafka::clients::producer::KafkaProducer makeProducer() {
         kafka::Properties p;
-        p.put("bootstrap.servers",  "localhost:9092");
+        p.put("bootstrap.servers",  getenv_or("KAFKA_BROKER", "localhost:9092"));
         p.put("enable.idempotence", "true");
         p.put("linger.ms",          "2");
         return kafka::clients::producer::KafkaProducer(p);

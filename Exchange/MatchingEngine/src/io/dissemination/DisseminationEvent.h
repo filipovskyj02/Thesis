@@ -2,6 +2,7 @@
 #define DISSEMINATIONEVENT_H
 #include <chrono>
 #include <vector>
+#include <variant>
 
 #include "../../common/CommonTypes.h"
 #include "../../common/Utils.h"

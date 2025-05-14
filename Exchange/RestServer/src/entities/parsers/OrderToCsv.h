@@ -34,6 +34,6 @@ inline std::string toCsv(const CancelOrderReq& o) {
            o.ticker + "," +
            o.orderId + "," +
            std::to_string(o.timestamp) + ",,,," +        // no side/price/volume
-           o.cancelTargetId + "\n";
+           o.cancelTargetId;
 }
 #endif //ORDERTOCSVPARSER_H
