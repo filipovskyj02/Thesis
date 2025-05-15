@@ -10,7 +10,7 @@ services:
   # ────────────────────────────────────────────────────────────────────────────────
   # 1) The Kafka broker itself, with a healthcheck on its API versions endpoint
   kafka:
-    networks: [core-net]
+    network_mode: host   
     logging:
       driver: "none"
     cpu_quota: -1  
@@ -21,12 +21,12 @@ services:
       - 9092:9092
     environment:
       KAFKA_PROCESS_ROLES:                     "broker,controller"
-      KAFKA_CONTROLLER_QUORUM_VOTERS:          "1@kafka:9093"
-      KAFKA_LISTENERS:                         "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_CONTROLLER_QUORUM_VOTERS:          "1@localhost:9093"
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:    "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
       KAFKA_CONTROLLER_LISTENER_NAMES:         "CONTROLLER"
       KAFKA_NODE_ID:                           "1"
-      KAFKA_ADVERTISED_LISTENERS:              "PLAINTEXT://kafka:9092"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
@@ -41,7 +41,7 @@ services:
 
     healthcheck:
       # broker will report its supported API versions if fully ready
-      test: ["CMD", "sh", "-c", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:9092 > /dev/null"]
+      test: ["CMD", "sh", "-c", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null"]
       interval:   10s
       timeout:    10s
       retries:    5
@@ -53,7 +53,7 @@ services:
     cpu_quota: -1
     logging:
       driver: "none"  
-    networks: [core-net]
+    network_mode: host   
     image: apache/kafka:4.0.0
     depends_on:
       kafka:
@@ -63,11 +63,11 @@ services:
       - -c
       - |
         echo "⏳ waiting for kafka…" >&2
-        until /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:9092 > /dev/null; do sleep 2; done
+        until /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null; do sleep 2; done
         echo "✅ creating topics…" >&2
-        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 \
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 \
           --create --if-not-exists --topic orders        --partitions 1 --replication-factor 1
-        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 \
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 \
           --create --if-not-exists --topic notifications --partitions 1 --replication-factor 1
         echo "🎉 topics ready" >&2
         # now hang so the container stays alive for its healthcheck…
@@ -75,7 +75,7 @@ services:
 
     healthcheck:
       # Only pass once both topics show up in the list
-      test: ["CMD", "sh", "-c", '/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list | grep -E "orders|notifications"']
+      test: ["CMD", "sh", "-c", '/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list | grep -E "orders|notifications"']
       interval:     5s
       timeout:      5s
       retries:      5
@@ -84,10 +84,14 @@ services:
   # ────────────────────────────────────────────────────────────────────────────────
   # 3) Matching Engine must wait for kafka-init → healthy
   matching-engine:
+    network_mode: host   
     logging:
-      driver: "none"
+      driver: "json-file"
+      options:
+        mode: "non-blocking"        # writes never block the app
+        max-buffer-size: "4m"     
     cpu_quota: -1  
-    networks: [core-net]
+    
     build: ./MatchingEngine
     depends_on:
       kafka:
@@ -95,7 +99,7 @@ services:
       kafka-init:
         condition: service_healthy
     environment:
-      KAFKA_BROKER:    kafka:9092
+      KAFKA_BROKER:    localhost:9092
       ORDERS_TOPIC:    orders
       NOTIFS_TOPIC:    notifications
       MULTICAST_ADDR:  239.255.0.1
@@ -105,9 +109,12 @@ services:
   # 4) REST gateway also waits on topics
   rest-server:
     logging:
-      driver: "none"
+      driver: "json-file"
+      options:
+        mode: "non-blocking"        # writes never block the app
+        max-buffer-size: "4m"     
     cpu_quota: -1  
-    networks: [core-net]
+    network_mode: host   
     build: ./RestServer
     depends_on:
       kafka:
@@ -117,16 +124,19 @@ services:
     ports:
       - "8080:8080"
     environment:
-      KAFKA_BROKER: kafka:9092
+      KAFKA_BROKER: localhost:9092
       ORDERS_TOPIC: orders
 
   # ────────────────────────────────────────────────────────────────────────────────
   # 5) TCP gateway same story
   socket-server:
+    network_mode: host   
     logging:
-      driver: "none"
+      driver: "json-file"
+      options:
+        mode: "non-blocking"        # writes never block the app
+        max-buffer-size: "4m"     
     cpu_quota: -1  
-    networks: [core-net]
     build: ./SocketServer
     depends_on:
       kafka:
@@ -136,16 +146,19 @@ services:
     ports:
       - "9000:9000"
     environment:
-      KAFKA_BROKER: kafka:9092
+      KAFKA_BROKER: localhost:9092
       ORDERS_TOPIC: orders
 
   # ────────────────────────────────────────────────────────────────────────────────
   # 6) Notification service
   notification-service:
+    network_mode: host   
     logging:
-      driver: "none"
+      driver: "json-file"
+      options:
+        mode: "non-blocking"        # writes never block the app
+        max-buffer-size: "4m"     
     cpu_quota: -1  
-    networks: [core-net]
     build: ./NotificationService
     depends_on:
       kafka:
@@ -155,5 +168,15 @@ services:
     ports:
       - "8090:8090"
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
       NOTIFICATIONS_TOPIC:             notifications
+
+  rest-tests:
+    cpu_quota: -1  
+    build:
+      context: ./Testing/rest          # path relative to compose file
+    network_mode: host                        # or network_mode: host if those are host-net
+    tty: true                           # so "exec" opens an interactive shell
+    stdin_open: true
+    logging:
+      driver: "none"               

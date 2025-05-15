@@ -15,7 +15,7 @@ using namespace kafka::clients::producer;
                       << err.message() << "\n";
           }
           else {
-              std::cout << "Message delivered: " << md.toString() << std::endl;
+              //std::cout << "Message delivered: " << md.toString() << std::endl;
           }
       })
 {}

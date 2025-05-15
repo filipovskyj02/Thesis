@@ -61,6 +61,7 @@ def listen_ws():
 # ─── Main test logic ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     # Start listeners
+    start_time = time.time()
     t_mcast = threading.Thread(target=listen_multicast, daemon=True)
     t_ws    = threading.Thread(target=listen_ws, daemon=True)
     t_mcast.start()
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         "price": 150.0,
         "volume": 5
     }
-    start_time = time.time()
+
     resp = requests.post(HTTP_URL, json=payload)
     resp.raise_for_status()
     order_id = resp.text.strip()

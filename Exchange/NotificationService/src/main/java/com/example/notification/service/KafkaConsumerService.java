@@ -19,7 +19,7 @@ public class KafkaConsumerService {
 
     @KafkaListener(topics = "${app.kafka.topic.notifications}")
     public void consume(String csvLine) {
-        System.out.println(csvLine);
+        //System.out.println(csvLine);
         NotificationEvent e = parser.parse(csvLine.trim());
         wsHandler.pushEvent(e);
     }
