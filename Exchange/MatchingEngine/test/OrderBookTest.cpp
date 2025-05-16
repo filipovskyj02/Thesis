@@ -2,7 +2,7 @@
 
 #include "../src/book/OrderBook.cpp"
 
-// Test‐only helper that lives entirely in the test file:
+// Test‐only helper
 namespace {
     std::unique_ptr<OrderBook> makeTestOrderBook() {
         static SafeQueue<std::shared_ptr<Order>> dummyInQueue;

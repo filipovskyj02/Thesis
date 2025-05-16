@@ -4,7 +4,7 @@ import { randomItem, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.2.0
 
 export const options = {
   vus: 10,
-  iterations: 1000009,
+  iterations: 20000,
 };
 
 const baseUrl = 'http://localhost:8080';

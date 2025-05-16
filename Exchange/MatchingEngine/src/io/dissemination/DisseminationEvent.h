@@ -37,7 +37,6 @@ using DisseminationEvent = std::variant<
     Level2Update
 >;
 
-// Serialize TradeEvent
 inline std::string toString(const TradeEvent& e) {
     std::ostringstream ss;
     ss << "TRADE,"
@@ -48,7 +47,6 @@ inline std::string toString(const TradeEvent& e) {
     return ss.str();
 }
 
-// Serialize Level1Update
 inline std::string toString(const Level1Update& u) {
     std::ostringstream ss;
     ss << "L1,"
@@ -61,7 +59,6 @@ inline std::string toString(const Level1Update& u) {
     return ss.str();
 }
 
-// Serialize Level2Update
 inline std::string toString(const Level2Update& u) {
     std::ostringstream ss;
     ss << "L2," << u.ticker;
@@ -75,7 +72,6 @@ inline std::string toString(const Level2Update& u) {
     return ss.str();
 }
 
-// Dispatch on the variant
 inline std::string toString(const DisseminationEvent& evt) {
     return std::visit([](auto&& arg){
         return toString(arg) + '\n';

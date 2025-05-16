@@ -60,20 +60,17 @@ def listen_ws():
 
 # ─── Main test logic ────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    # Start listeners
     start_time = time.time()
     t_mcast = threading.Thread(target=listen_multicast, daemon=True)
     t_ws    = threading.Thread(target=listen_ws, daemon=True)
     t_mcast.start()
     t_ws.start()
 
-    # Wait until both are ready
     if not mcast_ready.wait(timeout=5):
         raise RuntimeError("Multicast listener failed to join group")
     if not ws_open.wait(timeout=5):
         raise RuntimeError("WebSocket failed to open")
 
-    # Now fire off one order
     payload = {
         "userId": USER_ID,
         "ticker": "AAPL",

@@ -48,27 +48,27 @@ int main() {
     //KDBLogger logger;
     //PostgresLogger logger;
     //PostgresThreadedLogger logger;
-    //FileLogger logger;
-    //logger.init("log2.txt");
+    FileLogger logger;
+    logger.init("log.txt");
     //logger.init();
 
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < ordersCount; i++) {
         inputFile >> orderId >> side >> type >> price >> volume;
         if (type == "CANCEL") {
-            //logger.logCancel(orderId,std::chrono::duration_cast<std::chrono::microseconds>(
-                       // std::chrono::system_clock::now().time_since_epoch()).count());
+            logger.logCancel(orderId,std::chrono::duration_cast<std::chrono::microseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()).count());
             orderBook->cancelOrderLazy(orderBook->getOrder(orderId));
         }
         else {
             if (type == "MARKET") {
                 auto order = std::make_shared<Order>(convertSide(side), convertType(type), volume);
-                //logger.logOrder(order);
+                logger.logOrder(order);
                 orderBook->placeOrder(order);
             }
             else {
                 auto order = std::make_shared<Order>(convertSide(side), convertType(type), price, volume);
-               // logger.logOrder(order);
+                logger.logOrder(order);
                 orderBook->placeOrder(order);
             }
 
@@ -78,7 +78,7 @@ int main() {
     orderBook->countFilledCount();
 
     auto matchingDone = std::chrono::steady_clock::now();
-   // logger.close();
+    logger.close();
     auto totalDone = std::chrono::steady_clock::now();
 
     auto matchingDuration = matchingDone - start;

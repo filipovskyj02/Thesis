@@ -42,8 +42,8 @@ void FileLogger::loggingThreadFunc(const std::string& filename) {
     }
     std::vector<std::shared_ptr<Order>> orderBatch;
     std::vector<std::pair<OrderId, long>> cancelBatch;
-    const auto flushInterval = std::chrono::milliseconds(10);
-    const size_t maxBatchSize = 75;
+    const auto flushInterval = std::chrono::milliseconds(1);
+    const size_t maxBatchSize = 1000;
 
     while (running || !orderQueue.empty() || !cancelQueue.empty()) {
         {

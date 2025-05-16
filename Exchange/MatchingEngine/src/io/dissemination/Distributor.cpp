@@ -27,7 +27,7 @@ void Distributor::stop() {
     if (!running.exchange(false)) {
         return;
     }
-    eventQueue.close(); // wake any blocked pop()
+    eventQueue.close();
     if (distributorThread.joinable()) {
         distributorThread.join();
     }

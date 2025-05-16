@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 #include "Order.h"
 
@@ -60,7 +59,6 @@ inline std::pair<std::string,std::shared_ptr<Order>> parseRecord(const std::stri
     // cancel
     if (type == 3) {
         auto cancelId = elements[8];
-        //std::cout << "cancelId: " << cancelId << std::endl;
         return std::make_pair(ticker,std::make_shared<Order>(orderId, userId, timestamp, cancelId));
     }
     return std::make_pair("", nullptr);

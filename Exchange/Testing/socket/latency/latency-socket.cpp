@@ -18,7 +18,7 @@ int main() {
 
     asio::io_context io;
 
-    // 1) Set up and join the UDP multicast group
+    // join the UDP multicast group
     udp::socket mcast_sock(io);
     mcast_sock.open(udp::v4());
     mcast_sock.set_option(asio::socket_base::reuse_address(true));
@@ -29,7 +29,7 @@ int main() {
         )
     );
 
-    // 2) Connect to the TCP order server and authenticate
+    // Connect to the TCP order server and authenticate
     tcp::resolver resolver(io);
     auto endpoints = resolver.resolve(TCP_HOST, TCP_PORT);
     tcp::socket tcp_sock(io);
@@ -49,7 +49,7 @@ int main() {
         }
     }
 
-    // 3) Flush any pending UDP datagrams
+    // Flush any pending UDP datagrams
     std::vector<char> udp_buf(64*1024);
     mcast_sock.non_blocking(true);
     while (true) {
@@ -58,11 +58,15 @@ int main() {
         if (ec == asio::error::would_block) break;
     }
     mcast_sock.non_blocking(false);
-        auto t0 = Clock::now();
-     // 4) Send one order
+    // ---------------------------------------------------------------
+    // Start timer
+    auto t0 = Clock::now();
+    // ---------------------------------------------------------------
+
+     // Send one order
     asio::write(tcp_sock, asio::buffer(ORDER_LINE));
 
-    // 5) Wait for "ACK <orderId>\n" from the server
+    // Wait for "ACK <orderId>\n" from the server
     asio::streambuf ackBuf;
     asio::read_until(tcp_sock, ackBuf, "\n");
     std::istream is(&ackBuf);
@@ -72,17 +76,13 @@ int main() {
        std::cerr << "Order confirmation failed: " << "\n";
     }
 
-    // 6) Now start the timer
-
-
-    // 5) Block until first UDP multicast arrives
+    // Block until first UDP multicast arrives
     udp::endpoint sender_ep;
     size_t len = mcast_sock.receive_from(
         asio::buffer(udp_buf), sender_ep
     );
     auto t1 = Clock::now();
 
-    // 6) Compute and print latency
     double ms = std::chrono::duration<double,std::milli>(t1 - t0).count();
     std::string data(udp_buf.data(), len);
     std::cout << "Multicast received: " << data;

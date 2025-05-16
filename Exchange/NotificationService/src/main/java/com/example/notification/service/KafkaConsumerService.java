@@ -4,7 +4,6 @@ import com.example.notification.entities.interfaces.NotificationEvent;
 import com.example.notification.entities.parsers.NotificationEventParser;
 import com.example.notification.ws.NotificationWebSocketHandler;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service

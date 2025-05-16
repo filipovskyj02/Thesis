@@ -59,7 +59,6 @@ void Logger::run() {
         ofs << e << std::endl;
     }
 
-    // Close all file streams
     for (auto& [_, ofs] : files) {
         ofs.close();
     }

@@ -20,14 +20,13 @@ int main() {
         tcp::socket sock{ioc};
         acceptor.accept(sock);
 
-        // 5) handle each connection in its own thread
         std::thread{
             [s = std::move(sock), &service]() mutable {
                 try {
                     boost::asio::streambuf buf;
                     std::istream is(&buf);
 
-                    // 5a) expect AUTH line first
+                    // expect AUTH line first
                     boost::asio::read_until(s, buf, '\n');
                     std::string auth;
                     std::getline(is, auth);
@@ -39,7 +38,7 @@ int main() {
                     std::cout << "User ID: " << userId << " succesfully authed." << std::endl;
                     boost::asio::write(s, boost::asio::buffer("OK,AUTH_OK\n"));
 
-                    // 5b) thereafter each line is a CSV order
+                    // thereafter each line is a CSV order
                     while (true) {
                         boost::asio::read_until(s, buf, '\n');
                         std::string line;

@@ -20,14 +20,13 @@ void spammer(int id, int ordersPerThread) {
         tcp::socket     sock(io);
         boost::asio::connect(sock, resolver.resolve(HOST, PORT));
 
-        // 1) Mock authentication
+        // Mock authentication
         std::string auth = "AUTH " + std::to_string(1000 + id) + "\n";
         boost::asio::write(sock, boost::asio::buffer(auth));
         boost::asio::streambuf rb;
         boost::asio::read_until(sock, rb, "\n");  // expect "OK,AUTH_OK\n"
         rb.consume(rb.size());
 
-        // RNG for deciding order type and fields
         //std::mt19937 gen(std::random_device{}());
         //std::uniform_real_distribution<> prob(0.0, 1.0);
         //std::uniform_int_distribution<int> pickTicker(0, 1);
@@ -104,7 +103,7 @@ void spammer(int id, int ordersPerThread) {
 
 int main(int argc, char* argv[]) {
     int threads         = (argc > 1) ? std::atoi(argv[1]) : 5;
-    int ordersPerThread = (argc > 2) ? std::atoi(argv[2]) : 100000;
+    int ordersPerThread = (argc > 2) ? std::atoi(argv[2]) : 50000;
 
     std::vector<std::thread> pool;
     auto t0 = HiClock::now();

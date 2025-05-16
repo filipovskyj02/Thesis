@@ -2,7 +2,7 @@
     
 
 networks:
-  core-net:          # <-- single custom bridge
+  core-net:          
     driver: bridge
   
 
@@ -33,14 +33,13 @@ services:
       KAFKA_SOCKET_SEND_BUFFER_BYTES: "1024000"
       KAFKA_SOCKET_RECEIVE_BUFFER_BYTES: "1024000"
       KAFKA_SOCKET_REQUEST_MAX_BYTES: "104857600"
-      KAFKA_NUM_NETWORK_THREADS: "4"      # = number of host NIC queues or CPUs
-      KAFKA_NUM_IO_THREADS:      "4"      # = disks or CPUs; try 8 on NVMe
+      KAFKA_NUM_NETWORK_THREADS: "4"      
+      KAFKA_NUM_IO_THREADS:      "4"      
       KAFKA_LOG_CLEANER_THREADS: "2"
       
 
 
     healthcheck:
-      # broker will report its supported API versions if fully ready
       test: ["CMD", "sh", "-c", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null"]
       interval:   10s
       timeout:    10s
@@ -62,14 +61,14 @@ services:
       - sh
       - -c
       - |
-        echo "⏳ waiting for kafka…" >&2
+        echo "waiting for kafka…" >&2
         until /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null; do sleep 2; done
-        echo "✅ creating topics…" >&2
+        echo "creating topics…" >&2
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 \
           --create --if-not-exists --topic orders        --partitions 1 --replication-factor 1
         /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 \
           --create --if-not-exists --topic notifications --partitions 1 --replication-factor 1
-        echo "🎉 topics ready" >&2
+        echo "topics ready" >&2
         # now hang so the container stays alive for its healthcheck…
         tail -f /dev/null
 
@@ -88,7 +87,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        mode: "non-blocking"        # writes never block the app
+        mode: "non-blocking"       
         max-buffer-size: "4m"     
     cpu_quota: -1  
     
@@ -111,7 +110,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        mode: "non-blocking"        # writes never block the app
+        mode: "non-blocking"        
         max-buffer-size: "4m"     
     cpu_quota: -1  
     network_mode: host   
@@ -128,13 +127,13 @@ services:
       ORDERS_TOPIC: orders
 
   # ────────────────────────────────────────────────────────────────────────────────
-  # 5) TCP gateway same story
+  # 5) TCP gateway 
   socket-server:
     network_mode: host   
     logging:
       driver: "json-file"
       options:
-        mode: "non-blocking"        # writes never block the app
+        mode: "non-blocking"       
         max-buffer-size: "4m"     
     cpu_quota: -1  
     build: ./SocketServer
@@ -156,7 +155,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        mode: "non-blocking"        # writes never block the app
+        mode: "non-blocking"        
         max-buffer-size: "4m"     
     cpu_quota: -1  
     build: ./NotificationService
@@ -171,12 +170,15 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
       NOTIFICATIONS_TOPIC:             notifications
 
-  rest-tests:
-    cpu_quota: -1  
+# ────────────────────────────────────────────────────────────────────────────────
+ # 7) Test container
+  test:
+    cpu_quota: -1
     build:
-      context: ./Testing/rest          # path relative to compose file
-    network_mode: host                        # or network_mode: host if those are host-net
-    tty: true                           # so "exec" opens an interactive shell
+      context: ./Testing
+      dockerfile: Dockerfile
+    network_mode: host
+    tty: true
     stdin_open: true
     logging:
-      driver: "none"               
+      driver: "none"

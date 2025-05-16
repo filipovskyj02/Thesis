@@ -9,7 +9,6 @@ public class NotificationEventParser {
 
     public NotificationEvent parse(String line) {
 
-        // split into exactly the parts your C++ toString created
         String[] p = line.split(",", -1);
         switch (p[0]) {
             case "PLACED":

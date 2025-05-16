@@ -18,10 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    // userId → sessions
     private final Map<Long, Set<WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
-    // called by your KafkaConsumerService
     public void pushEvent(NotificationEvent evt) {
         String json;
         try {
@@ -43,7 +41,6 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        // expect ?userId=123 on the URL
         String query = session.getUri().getQuery();
         long userId = Arrays.stream(query.split("&"))
                 .map(p -> p.split("=",2))

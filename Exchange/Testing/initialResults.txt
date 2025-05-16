@@ -284,7 +284,7 @@ Orders    : 100000
 Elapsed   : 2.41078 s
 Throughput: 41480 TPS
 
-UDP LATENCY (TIMER BEFORE REQUEST)
+UDP LATENCY (TIMER STARTS BEFORE REQUEST IS SENT)
 Multicast received: L2,AAPL,150:85,1747184488365,1747184488365,1747184488365
 Multicast latency: 0.41123 ms
 kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
@@ -303,7 +303,7 @@ kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out
 Multicast received: L2,AAPL,150:110,1747184491733,1747184491733,1747184491732
 Multicast latency: 0.29203 ms
 
-UDP LATENCY(TIMER AFTER RECIEVE OK)
+UDP LATENCY(TIMER STARTS AFTER RECIEVE OK)
 kuba@KubaLinux:~/Thesis/Exchange/Testing/socket/latency$ ./a.out 
 Multicast received: L2,AAPL,150:175,1747184774101,1747184774101,1747184774101
 Multicast latency: 0.204741 ms

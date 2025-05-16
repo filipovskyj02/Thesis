@@ -34,14 +34,14 @@ void KafkaReader::run() {
 
 
     KafkaConsumer consumer(props);
-    consumer.subscribe({ kafkaTopic }, NullRebalanceCallback, std::chrono::milliseconds(30000));
+    consumer.subscribe({ kafkaTopic }, NullRebalanceCallback, std::chrono::milliseconds(90000));
 
     while (running) {
         auto records = consumer.poll(std::chrono::milliseconds(5));
 
         for (const auto& record: records) {
             if (record.error()) {
-                // log or smth
+                std::cerr << "Invalid Message" << std::endl;
                 continue;
             }
             //std::cout << "recieved message in core matching engine: " << record.value().toString() << std::endl;
@@ -54,7 +54,7 @@ void KafkaReader::run() {
                 orderQueues[tickerToIndex.at(res.first)]->push(res.second);
             }
             else {
-                std::cout << "Invalid ticker" << std::endl;
+                std::cerr << "Invalid ticker" << std::endl;
             }
         }
     }
