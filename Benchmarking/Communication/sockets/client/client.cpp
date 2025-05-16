@@ -3,13 +3,13 @@
 #include <chrono>
 #include <string>
 #include <thread>
-#include <iomanip>   // For std::fixed and std::setprecision
+#include <iomanip>   
 
 using boost::asio::ip::tcp;
 
 int main() {
     try {
-        const int TOTAL_ORDERS = 1000000; // Total messages to send
+        const int TOTAL_ORDERS = 1000000; 
         boost::asio::io_context io_context;
 
         tcp::resolver resolver(io_context);
@@ -20,12 +20,10 @@ int main() {
         std::string message = "1743877066453455 BUY LIMIT 103.891 4\n";
         auto start = std::chrono::steady_clock::now();
 
-        // Send messages in a loop.
         for (int i = 0; i < TOTAL_ORDERS; ++i) {
             std::string full_msg = std::to_string(i) + " " + message;
             boost::asio::write(socket, boost::asio::buffer(full_msg));
 
-            // Wait for server's "OK" response
             boost::asio::streambuf response;
             boost::asio::read_until(socket, response, '\n');
             std::istream response_stream(&response);

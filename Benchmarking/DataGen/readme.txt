@@ -1,0 +1,1 @@
+This directory contains the order generator. The outputs folder with the acual tests used in the thesis is sadly not included in the KOS version, as it has a ridiculous 50 mb file size limit. However they are stored on github https://github.com/filipovskyj02/Thesis

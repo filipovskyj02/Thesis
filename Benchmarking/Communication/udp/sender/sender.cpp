@@ -8,7 +8,7 @@ int main() {
     namespace asio = boost::asio;
     using asio::ip::udp;
 
-    const char*        MCAST_ADDR     = "239.255.0.1";  // Administratively‑scoped multicast
+    const char*        MCAST_ADDR     = "239.255.0.1";  
     const unsigned short MCAST_PORT   = 30001;
     const int          TOTAL_PACKETS  = 1000000;
     const int          BATCH_SIZE     = 1;
@@ -16,10 +16,8 @@ int main() {
     asio::io_context   io_context;
     udp::socket        socket(io_context, udp::v4());
 
-    // 1) Set TTL so packets stay on local subnet
     socket.set_option(asio::ip::multicast::hops(1));
 
-    // 2) Destination endpoint = multicast group + port
     udp::endpoint      dest(
         asio::ip::make_address(MCAST_ADDR),
         MCAST_PORT
@@ -33,9 +31,7 @@ int main() {
 
     auto t_start = std::chrono::steady_clock::now();
 
-    // 3) Send in batches of lines per datagram
     for (int batch_i = 0; batch_i < TOTAL_PACKETS / BATCH_SIZE; ++batch_i) {
-        // timestamp once per batch
         auto ts = std::chrono::duration_cast<std::chrono::microseconds>(
                       std::chrono::steady_clock::now()
                          .time_since_epoch()

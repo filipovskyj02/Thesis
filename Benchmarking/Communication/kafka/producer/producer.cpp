@@ -45,7 +45,6 @@ int main() {
             std::cerr << "Produce failed for msg " << i << ": " << RdKafka::err2str(resp) << std::endl;
         }
 
-        // Allow queue to drain to avoid local queue overflow
         producer->poll(0);
     }
 

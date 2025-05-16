@@ -1,3 +1,4 @@
+This file includes some console outputs to be later referenced by the thesis
 l2 udp reciver:
 curr time: 1746558087119 L2,AAPL,150:30,1746558087119,1746558087043
 curr time: 1746558172182 L2,AAPL,150:35,1746558172182,1746558172164

@@ -29,7 +29,7 @@ int main() {
     std::cin.tie(NULL);
     auto orderBook = std::make_unique<OrderBook>();
 
-    std::ifstream inputFile("../../DataGen/outputs/1000-500000-0.670000-0.950000-19-04-2025 02-55-07.txt");
+    std::ifstream inputFile("../../DataGen/outputs/2000-50000-0.670000-0.950000-16-05-2025 09-41-15.txt");
 
     int initialOrdersCount;
     int ordersCount;

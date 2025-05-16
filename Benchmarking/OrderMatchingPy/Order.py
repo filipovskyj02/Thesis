@@ -57,5 +57,4 @@ class Order:
         return self.price
 
     def __lt__(self, other):
-        # Required for Python's PriorityQueue comparison
         return self.price < other.price

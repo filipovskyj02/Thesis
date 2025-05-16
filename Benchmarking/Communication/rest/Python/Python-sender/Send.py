@@ -4,9 +4,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 URL = "http://localhost:8080/submit_order"
 TOTAL_ORDERS = 10000
-MAX_WORKERS = 3  # you can experiment with this number
+MAX_WORKERS = 3 
 
-# Create a fixed order payload once
 pre_serialized_order = (
     '{"id": 123, "timestamp": 1743877066453455, "side": "BUY", '
     '"order_type": "LIMIT", "price": 123.45, "volume": 10}'
@@ -28,7 +27,6 @@ def wait_for_server():
     return False
 
 def send_order(order_index):
-    # Optionally, you can print the order index or do other bookkeeping
     try:
         r = requests.post(URL, data=pre_serialized_order, headers={"Content-Type": "application/json"})
         return r.status_code
@@ -43,7 +41,6 @@ start = time.perf_counter()
 
 with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
     futures = [executor.submit(send_order, i) for i in range(TOTAL_ORDERS)]
-    # Optional: verify all orders were sent successfully
     for future in as_completed(futures):
         status = future.result()
         if status != 200:

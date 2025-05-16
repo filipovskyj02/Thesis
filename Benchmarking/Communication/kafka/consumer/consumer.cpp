@@ -68,8 +68,8 @@ int main() {
         RdKafka::Message *msg = consumer->consume(1000);
         if (msg->err()) {
             if (msg->err() == RdKafka::ERR__TIMED_OUT) {
-                // Do nothing — expected idle poll
-            } else if (msg->err() != RdKafka::ERR__PARTITION_EOF) {
+            } 
+            else if (msg->err() != RdKafka::ERR__PARTITION_EOF) {
                 std::cerr << "Consume error: " << msg->errstr() << std::endl;
             }
         }        

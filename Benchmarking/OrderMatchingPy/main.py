@@ -7,7 +7,7 @@ import time
 
 def main():
     order_book = OrderBook()
-    filename = "../DataGen/outputs/1000000-2000000-0.670000-0.950000-02-03-2025 16-02-34.txt"
+    filename = "../DataGen/outputs/2000-50000-0.670000-0.950000-16-05-2025 09-41-15.txt"
 
     try:
         with open(filename, 'r') as file:

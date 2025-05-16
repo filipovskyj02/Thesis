@@ -4,14 +4,13 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) {
         OrderBook orderBook = new OrderBook();
-        String filename = "../../DataGen/outputs/30000-500000-0.200000-0-02-03-2025 17-00-43.txt";
+        String filename = "../../DataGen/outputs/2000-50000-0.670000-0.950000-16-05-2025 09-41-15.txt";
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String[] firstLine = reader.readLine().split(" ");
             int initialOrdersCount = Integer.parseInt(firstLine[0]);
             int ordersCount = Integer.parseInt(firstLine[1]);
 
-            // Read initial orders
             for (int i = 0; i < initialOrdersCount; i++) {
                 String[] parts = reader.readLine().split(" ");
                 long orderId = Long.parseLong(parts[0]);

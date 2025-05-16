@@ -13,13 +13,11 @@ int main() {
     asio::io_context   io_context;
     udp::endpoint      listen_ep(udp::v4(), LISTEN_PORT);
 
-    // 1) Create socket, reuse & bind
     udp::socket socket(io_context);
     socket.open(listen_ep.protocol());
     socket.set_option(asio::socket_base::reuse_address(true));
     socket.bind(listen_ep);
 
-    // 2) Join the multicast group
     socket.set_option(
         asio::ip::multicast::join_group(
             asio::ip::make_address(MCAST_ADDR)
@@ -39,7 +37,6 @@ int main() {
         auto nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                      std::chrono::system_clock::now().time_since_epoch()).count();
 
-        // Print raw datagram (may contain multiple lines)
         std::cout << "curr time: " << nowMs << " ";
         std::cout.write(buffer.data(), len);
 

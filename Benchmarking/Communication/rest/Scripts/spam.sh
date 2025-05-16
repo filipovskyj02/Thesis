@@ -8,7 +8,6 @@ if [ $# -lt 1 ]; then
 fi
 
 NUM_REQUESTS=$1
-# Default URL if none provided
 URL=${2:-http://localhost:8080/hello}
 
 echo "Spamming $URL with $NUM_REQUESTS requests..."
